@@ -2281,7 +2281,7 @@ MC.addEventListener('mousemove', ev => {
   // หา candle ที่ตรงกับ xMouse (สำหรับ date/time)
   const xMouse  = ev.clientX - rect.left;
   const { pL, pR, pT, pW, cw } = (typeof getLayoutMetrics === 'function')
-    ? getLayoutMetrics() : { pL: 40, pR: 90, pT: 10, pW: MC.clientWidth - 130, cw: pW / Math.max(1, visCands.length) };
+    ? getLayoutMetrics() : (() => { const _pW = MC.clientWidth - 130; return { pL: 40, pR: 90, pT: 10, pW: _pW, cw: _pW / Math.max(1, visCands.length) }; })();
   const candleIdx  = Math.floor((xMouse - pL) / cw);
   const hovCandle  = visCands[candleIdx] || visCands[visCands.length - 1];
   const dateStr    = hovCandle ? (() => {
