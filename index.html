@@ -135,7 +135,41 @@ canvas { display: block; }
   box-shadow: 0 8px 24px rgba(0,0,0,.6);
   min-width: 220px;
 }
-#tooltip .tt-price  { font-size: 13px; font-weight: 600; color: var(--accent); }
+#tooltip /* Coinglass-style tooltip */
+#tooltip {
+  min-width: 200px;
+  max-width: 260px;
+  padding: 10px 13px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.tt-date {
+  font-size: 11px;
+  color: var(--dim);
+  margin-bottom: 7px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.tt-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 0;
+}
+.tt-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tt-key {
+  color: var(--dim);
+  flex: 1;
+}
+.tt-val {
+  font-weight: 600;
+  color: var(--text);
+}
 #tooltip .tt-liq    { margin-top: 4px; border-top: 1px solid var(--border); padding-top: 4px; }
 
 #caption {
@@ -506,13 +540,127 @@ canvas { display: block; }
   #topbar h1 { font-size: 13px; }
 }
 
+
+/* ══════════════════════════════════════════════════════════════
+   REDESIGN CSS — clean & minimal
+══════════════════════════════════════════════════════════════ */
+
+/* ── Sidebar compact ── */
+#sidebar {
+  width: 170px;
+}
+
+/* Legend compact row */
+.leg-compact {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 10px 6px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+.lc-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.lc-sep {
+  width: 1px;
+  height: 12px;
+  background: var(--border2);
+  flex-shrink: 0;
+}
+.lc-label {
+  font-size: 9px;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.lc-bar {
+  display: inline-block;
+  width: 16px;
+  background: var(--dim);
+  border-radius: 1px;
+  align-self: center;
+}
+
+/* Source panel compact grid */
+#sourcePanel {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.src-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 6px;
+  align-items: center;
+}
+.src-exch {
+  font-size: 10px;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+/* ── Statsbar primary ── */
+.stat.primary {
+  background: rgba(255,255,255,.025);
+  border-bottom: 2px solid var(--accent);
+}
+.stat.primary .val {
+  font-size: 14px;
+}
+.stat-div {
+  width: 1px;
+  background: var(--border2);
+  align-self: stretch;
+  margin: 6px 0;
+  flex-shrink: 0;
+}
+
+/* ── Tooltip simplified ── */
+#tooltip {
+  min-width: 160px;
+  max-width: 240px;
+}
+.tt-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: .3px;
+}
+
+/* ── liqInfo cleaner layout ── */
+.tt-liq {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+}
+
+/* ── Feed cleaner ── */
+#feedTitle {
+  font-size: 10px;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 6px 10px 3px;
+}
+#feed {
+  font-size: 10px;
+  line-height: 1.6;
+  overflow-y: auto;
+  flex: 1;
+  padding: 0 8px 8px;
+}
+
 </style>
 </head>
 <body>
 
 <!-- TOP BAR -->
 <div id="topbar">
-  <h1>Liquidation Heatmap <em>· P_agg 5-Exchange v17</em></h1>
+  <h1>LiqHeatmap <em>· v17</em></h1>
   <select id="coinSel">
     <option>BTC</option><option>ETH</option><option>SOL</option>
     <option>HYPE</option><option>DOGE</option><option>BNB</option>
@@ -561,15 +709,16 @@ canvas { display: block; }
 
 <!-- STATS ROW -->
 <div id="statsbar">
-  <div class="stat">
+  <div class="stat primary">
     <div class="lbl">P_agg (5-Exch)</div>
     <div class="val neu" id="sPagg">—</div>
     <div class="stat-sub" id="sPaggSub">—</div>
   </div>
-  <div class="stat">
+  <div class="stat primary">
     <div class="lbl">Mark Price (HL)</div>
     <div class="val" id="sMark">—</div>
   </div>
+  <div class="stat-div"></div>
   <div class="stat">
     <div class="lbl">Spot Vol 24h</div>
     <div class="val" id="sSpotVol">—</div>
@@ -578,12 +727,12 @@ canvas { display: block; }
     <div class="lbl">Futures Vol 24h</div>
     <div class="val" id="sFutVol">—</div>
   </div>
-  <div class="stat">
+  <div class="stat primary">
     <div class="lbl">Coverage</div>
     <div class="val" id="sCoverage">—</div>
     <div class="stat-sub" id="sCoverageSub">—</div>
   </div>
-  <div class="stat">
+  <div class="stat primary">
     <div class="lbl">Blended OI</div>
     <div class="val" id="sOI">—</div>
     <div class="stat-sub" id="sOISub">—</div>
@@ -677,62 +826,43 @@ canvas { display: block; }
     <canvas id="mainCanvas"></canvas>
     <canvas id="volCanvas"></canvas>
     <div id="tooltip"></div>
-    <div id="caption">🟠 = Real Liq Grid (Binance allForceOrders ผ่าน GAS) | แถบสี = Model Zones 8 ระดับ (5x→150x) จาก P_agg | ◆ = liq จริง real-time</div>
+    <div id="caption">แถบสี = Liq Zones 8 ระดับ (5x→150x) จาก P_agg (Binance Spot+Bybit+OKX+MEXC+Gate+HL) | ◆ = liquidation เกิดจริงจาก Binance (ถ้า feed พร้อม)</div>
   </div>
 
   <!-- SIDEBAR -->
   <div id="sidebar">
+    <!-- ── Legend compact ── -->
     <div id="legend">
-      <div class="lbl">คำอธิบายสี</div>
-      <div class="leg-row">
-        <div class="leg-line thick" style="background:var(--liq-both-hi)"></div>
-        <span>Cluster หนาแน่นสูง (Long+Short)</span>
-      </div>
-      <div class="leg-row">
-        <div class="leg-line" style="background:var(--liq-short-hi)"></div>
-        <span>Short Liq zone (ราคาขึ้น → โดน)</span>
-      </div>
-      <div class="leg-row">
-        <div class="leg-line" style="background:var(--liq-long-hi)"></div>
-        <span>Long Liq zone (ราคาลง → โดน)</span>
-      </div>
-      <div class="leg-row">
-        <div class="leg-line" style="background:repeating-linear-gradient(90deg,#8c96aa 0 4px,transparent 4px 7px)"></div>
-        <span>✓ = โซนที่ราคาเคยผ่านแล้ว (consumed)</span>
-      </div>
-      <div class="leg-row">
-        <div class="leg-line thick" style="background:var(--gold);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"></div>
-        <span>◆ = Liquidation เกิดจริง (Binance) — แถบสี = โซนประมาณ</span>
+      <div class="leg-compact">
+        <span class="lc-dot" style="background:var(--liq-both-hi)" title="Cluster (Long+Short)"></span>
+        <span class="lc-dot" style="background:var(--liq-short-hi)" title="Short Liq zone"></span>
+        <span class="lc-dot" style="background:var(--liq-long-hi)" title="Long Liq zone"></span>
+        <span class="lc-dot" style="background:var(--gold);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)" title="Liq เกิดจริง (BN)"></span>
+        <span class="lc-sep"></span>
+        <span class="lc-label">OI: </span>
+        <span class="lc-bar" style="height:5px" title=">70%"></span>
+        <span class="lc-bar" style="height:3px" title="40–70%"></span>
+        <span class="lc-bar" style="height:1.5px" title="15–40%"></span>
       </div>
     </div>
 
-    <div id="sizeGuide">
-      <div class="title">ความหนาเส้น = ปริมาณ OI</div>
-      <div class="sz-row"><div class="sz-line" style="width:28px;height:5px"></div><span>สูงมาก (>70%)</span></div>
-      <div class="sz-row"><div class="sz-line" style="width:28px;height:3px"></div><span>ปานกลาง (40–70%)</span></div>
-      <div class="sz-row"><div class="sz-line" style="width:28px;height:1.5px"></div><span>ต่ำ (15–40%)</span></div>
-    </div>
-
+    <!-- ── Source status compact ── -->
     <div id="sourcePanel">
-      <div class="title">สถานะแหล่งข้อมูล (5+1)</div>
-      <div class="src-row">
-        <span>Binance <span class="src-sub">Spot</span></span>
-        <span class="src-status" id="ss-binance-spot">—</span>
+      <div class="src-grid">
+        <span class="src-exch">BN<span class="src-sub">S</span></span><span class="src-status" id="ss-binance-spot">—</span>
+        <span class="src-exch">BN<span class="src-sub">F</span></span><span class="src-status" id="ss-binance-fut">—</span>
+        <span class="src-exch">BB</span><span class="src-status" id="ss-bybit">—</span>
+        <span class="src-exch">OKX</span><span class="src-status" id="ss-okx">—</span>
+        <span class="src-exch">MX</span><span class="src-status" id="ss-mexc">—</span>
+        <span class="src-exch">GT</span><span class="src-status" id="ss-gate">—</span>
+        <span class="src-exch">HL</span><span class="src-status" id="ss-hyperliquid">—</span>
       </div>
-      <div class="src-row">
-        <span>Binance <span class="src-sub">Fut</span></span>
-        <span class="src-status" id="ss-binance-fut">—</span>
-      </div>
-      <div class="src-row"><span>Bybit</span><span class="src-status" id="ss-bybit">—</span></div>
-      <div class="src-row"><span>OKX</span><span class="src-status" id="ss-okx">—</span></div>
-      <div class="src-row"><span>MEXC</span><span class="src-status" id="ss-mexc">—</span></div>
-      <div class="src-row"><span>Gate.io</span><span class="src-status" id="ss-gate">—</span></div>
-      <div class="src-row"><span>Hyperliquid</span><span class="src-status" id="ss-hyperliquid">—</span></div>
     </div>
 
+    <!-- ── Live trades ── -->
     <div id="feedTitle">เทรดใหญ่ล่าสุด</div>
     <div id="feed"></div>
-  </div>
+  </div></div>
 </div>
 
 <!-- Settings dialog removed — Worker URL baked into CFG.workerUrl -->
@@ -798,7 +928,7 @@ const VP_VIS_MIN = 20, VP_VIS_MAX = 260;
 let candles = [];
 let trades  = [];  // { px, sz, usd, side, ts, exch } — เทรดจริงจากหลายเอ็กซ์เชนจ์ (ไม่ใช่แค่ HL อีกต่อไป)
 let realLiqs = []; // { px, usd, side:'long'|'short', ts } — liquidation ที่ "เกิดจริง" จาก Binance forceOrder@arr
-// NEW v18: Real liquidation heatmap grid จาก Worker /heatmap → GAS v3 → Binance allForceOrders
+// NEW v18: Real liq heatmap grid จาก Worker /heatmap → GAS v3 → Binance allForceOrders
 // sparseCells: [[t, p, usd], ...] — 2D grid แบบ CoinGlass (time × price × USD volume)
 let realHeatmapData = null; // { timeBins, priceBins, sparseCells, maxVol, totalEvents, totalUsd, ts, coin }
 let bands   = [];  // 160 price bands { lo, hi, longD, shortD, clusterD }
@@ -1597,13 +1727,12 @@ function draw() {
   const p2y = p => pT + pH - ((p - lo) / (hi - lo)) * pH;
   const n = visCands.length, cw = pW / n;
 
-  /* ── LAYER 0: Liquidation Heatmap background (วาดก่อนสุด) ── */
-  /* ── LAYER 0a: Real liq grid overlay (CoinGlass-style) จาก Worker /heatmap + GAS v3 ──
-     วาดก่อน model bands — ถ้า realHeatmapData ว่าง (fapi geo-block) ข้ามได้เลย */
+  /* ── LAYER 0a: Real liq grid (CoinGlass-style) จาก Worker /heatmap + GAS v3 ──
+     วาดก่อนสุด — ถ้า realHeatmapData ว่าง (fapi geo-block) ข้ามได้เลย (graceful fallback) */
   if (realHeatmapData) {
     drawRealHeatmapOverlay(cx, pL, pT, pW, pH, lo, hi, p2y, visCands);
   }
-  /* ── LAYER 0b: Model liq bands (leverage-based estimation) ── */
+  /* ── LAYER 0b: Model liq bands (leverage-based estimation จาก P_agg) ── */
   if (bands.length) {
     const lastPx = visCands[visCands.length - 1].c;
     drawLiqHeatmap(cx, pL, pR, pT, pW, pH, mw, lo, hi, p2y, lastPx, visCands, startIdx);
@@ -1719,6 +1848,82 @@ function draw() {
 }
 
 /* ═══════════════════════════════════════════════════════
+   NEW v18: drawRealHeatmapOverlay — LAYER 0a
+   วาด real liquidation grid จาก Worker /heatmap → GAS v3 → Binance allForceOrders
+   เป็น 2D overlay (time × price × USD volume) แบบ CoinGlass จริง
+   palette: orange → yellow-white (ต่างจาก model bands เพื่อแยกชัดบนหน้าจอ)
+   ถ้า realHeatmapData = null → return ทันที (graceful)
+═══════════════════════════════════════════════════════ */
+function drawRealHeatmapOverlay(ctx, pL, pT, pW, pH, lo, hi, p2y, visCands) {
+  if (!realHeatmapData || !realHeatmapData.sparseCells || !realHeatmapData.sparseCells.length) return;
+  const { timeBins, priceBins, sparseCells, maxVol } = realHeatmapData;
+  if (!timeBins || !timeBins.length || !priceBins || !maxVol) return;
+
+  const T = timeBins.length;
+  const P = priceBins.length;
+  if (!T || !P) return;
+
+  // หา visible time range จาก candles ปัจจุบัน
+  const firstCand = visCands[0];
+  const lastCand  = visCands[visCands.length - 1];
+  if (!firstCand || !lastCand) return;
+  const tMin = firstCand.t;
+  const tMax = lastCand.t;
+  const tRange = tMax - tMin || 1;
+
+  // กว้าง 1 time bucket บน canvas
+  const ivMs   = (timeBins[1] - timeBins[0]) || 3600000;
+  const cellW  = Math.max(1, (ivMs / tRange) * pW);
+
+  // color ramp: log-normalized, dark orange → bright yellow-white (CoinGlass real-liq palette)
+  const logMax = Math.log1p(maxVol);
+  function realHeatColor(vol) {
+    const norm = Math.log1p(vol) / logMax;
+    if (norm < 0.04) return null;
+    const alpha = Math.min(0.85, norm * 0.88 + 0.08);
+    let r, g, b;
+    if (norm < 0.5) {
+      const t = norm / 0.5;
+      r = Math.round(180 + t * 69);   // 180→249
+      g = Math.round(60  + t * 120);  // 60→180
+      b = 15;
+    } else {
+      const t = (norm - 0.5) / 0.5;
+      r = Math.min(255, Math.round(249 + t * 6));
+      g = Math.round(180 + t * 75);   // 180→255
+      b = Math.round(15  + t * 63);   // 15→78
+    }
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  ctx.save();
+  for (const cell of sparseCells) {
+    const tIdx = cell[0], pIdx = cell[1], vol = cell[2];
+    if (tIdx < 0 || tIdx >= T || pIdx < 0 || pIdx >= P) continue;
+
+    const tMs = timeBins[tIdx];
+    // กรองเฉพาะ time bucket ที่อยู่ในช่วง visible (±2 buckets tolerance)
+    if (tMs < tMin - ivMs * 2 || tMs > tMax + ivMs * 2) continue;
+
+    const pb   = priceBins[pIdx];
+    const pMid = (pb.lo + pb.hi) / 2;
+    if (pMid < lo || pMid > hi) continue;
+
+    const color = realHeatColor(vol);
+    if (!color) continue;
+
+    const x    = pL + ((tMs - tMin) / tRange) * pW;
+    const yHi  = p2y(pb.hi);
+    const yLo  = p2y(pb.lo);
+    const cellH = Math.max(1, yLo - yHi);
+
+    ctx.fillStyle = color;
+    ctx.fillRect(Math.round(x), Math.round(yHi), Math.ceil(cellW), Math.round(cellH));
+  }
+  ctx.restore();
+}
+
+/* ═══════════════════════════════════════════════════════
    DRAW LIQ HEATMAP — LAYER 0 (วาดก่อน candle)
 
    สี: Coinglass style
@@ -1731,91 +1936,6 @@ function draw() {
      zone ไหนที่ราคาเคยเทรดผ่านจริง ๆ (ไม่ใช่แค่เทียบ all-time extreme) ถือว่าถูกกวาดแล้ว
      ใช้ค่าเดียวกันทั้ง long/short เพราะเป็นโซนราคาเดียวกันในทางกายภาพ
 ═══════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════
-   NEW v18: drawRealHeatmapOverlay
-   วาด real liquidation grid จาก Worker /heatmap → GAS v3 → Binance allForceOrders
-   เป็น 2D overlay (time × price × USD volume) แบบ CoinGlass จริง
-   วาดก่อน model bands (Layer 0a) — ถ้า realHeatmapData = null ข้ามทันที (graceful)
-   palette: dark transparent → orange → white (ต่างจาก model bands เพื่อแยกชัด)
-═══════════════════════════════════════════════════════ */
-function drawRealHeatmapOverlay(ctx, pL, pT, pW, pH, lo, hi, p2y, visCands) {
-  if (!realHeatmapData || !realHeatmapData.sparseCells || !realHeatmapData.sparseCells.length) return;
-  const { timeBins, priceBins, sparseCells, maxVol } = realHeatmapData;
-  if (!timeBins || !timeBins.length || !priceBins || !maxVol) return;
-
-  const T  = timeBins.length;
-  const P  = priceBins.length;
-  if (!T || !P) return;
-
-  // หา visible time range จาก candles
-  const firstCand = visCands[0];
-  const lastCand  = visCands[visCands.length - 1];
-  if (!firstCand || !lastCand) return;
-  const tMin = firstCand.t;
-  const tMax = lastCand.t;
-
-  // cell size บน canvas
-  const cellW = pW / T;
-
-  // color ramp: 0 → invisible, low → orange จาง, high → white/yellow สว่าง (CoinGlass style)
-  function realHeatColor(norm) {
-    // norm ∈ [0,1] (log-scaled)
-    if (norm < 0.05) return null;
-    const alpha = Math.min(0.88, norm * 0.9 + 0.08);
-    // dark orange → bright yellow-white
-    let r, g, b;
-    if (norm < 0.5) {
-      const t = norm / 0.5;
-      r = Math.round(180 + t * 69);   // 180→249
-      g = Math.round(60  + t * 120);  // 60→180
-      b = Math.round(10  + t * 10);   // 10→20
-    } else {
-      const t = (norm - 0.5) / 0.5;
-      r = Math.round(249 + t * 6);    // 249→255
-      g = Math.round(180 + t * 75);   // 180→255
-      b = Math.round(20  + t * 58);   // 20→78
-    }
-    return `rgba(${r},${g},${b},${alpha})`;
-  }
-
-  // log-scale normalization: ทำให้ค่า USD เล็กๆ ยังเห็นสี แต่ค่าใหญ่ไม่ dominate
-  const logMax = Math.log1p(maxVol);
-
-  ctx.save();
-  for (const [tIdx, pIdx, vol] of sparseCells) {
-    if (tIdx < 0 || tIdx >= T || pIdx < 0 || pIdx >= P) continue;
-
-    // กรองเฉพาะ time range ที่อยู่ใน visible candles (±1 bucket tolerance)
-    const tMs = timeBins[tIdx];
-    if (tMs < tMin - (timeBins[1] - timeBins[0] || 3600000) * 2) continue;
-    if (tMs > tMax + (timeBins[1] - timeBins[0] || 3600000) * 2) continue;
-
-    // หา price range ของ cell
-    const pb   = priceBins[pIdx];
-    const pMid = (pb.lo + pb.hi) / 2;
-    if (pMid < lo || pMid > hi) continue;
-
-    // แปลง time bucket → X บน canvas (linear interpolation กับ candle timeline)
-    const tRange = tMax - tMin || 1;
-    const x = pL + ((tMs - tMin) / tRange) * pW;
-    if (x < pL - cellW || x > pL + pW + cellW) continue;
-
-    // แปลง price → Y
-    const yHi = p2y(pb.hi);
-    const yLo = p2y(pb.lo);
-    const cellH = Math.max(1, yLo - yHi);
-
-    // normalize แบบ log
-    const norm = Math.log1p(vol) / logMax;
-    const color = realHeatColor(norm);
-    if (!color) continue;
-
-    ctx.fillStyle = color;
-    ctx.fillRect(Math.round(x), Math.round(yHi), Math.max(1, Math.round(cellW)), Math.round(cellH));
-  }
-  ctx.restore();
-}
-
 function drawLiqHeatmap(ctx, pL, pR, pT, pW, pH, mw, lo, hi, p2y, lastPx, visCands, startIdx) {
   pendingLiqLabels = []; // reset — labels วาดทีหลังสุดใน draw() เพื่อไม่ให้ histogram panel ทับ
   if (!bands.length) return;
@@ -1887,7 +2007,7 @@ function drawLiqHeatmap(ctx, pL, pR, pT, pW, pH, mw, lo, hi, p2y, lastPx, visCan
           ctx.setLineDash([]);
         }
         if (b.longD > 0.5) {
-          queueLabel(midY, '$' + fmt(midPx) + ' ✓', 'rgba(150,160,180,.85)', b.longD - 0.4, false);
+          // consumed zone — ไม่วาด label เพื่อลด noise
         }
       } else {
         const alpha = Math.pow(b.longD, 0.5) * opac;
@@ -1902,7 +2022,7 @@ function drawLiqHeatmap(ctx, pL, pR, pT, pW, pH, mw, lo, hi, p2y, lastPx, visCan
           ctx.beginPath(); ctx.moveTo(pL, midY); ctx.lineTo(pL + barW, midY); ctx.stroke();
         }
         if (b.longD > 0.5) {
-          queueLabel(midY, '$' + fmt(midPx), heatColor(Math.min(1, b.longD + 0.2), 0.95), b.longD, b.longD > 0.75);
+          if (b.longD > 0.5) queueLabel(midY, '$' + fmt(midPx), heatColor(Math.min(1, b.longD + 0.2), 0.95), b.longD, b.longD > 0.75);
         }
       }
     }
@@ -1923,7 +2043,7 @@ function drawLiqHeatmap(ctx, pL, pR, pT, pW, pH, mw, lo, hi, p2y, lastPx, visCan
           ctx.setLineDash([]);
         }
         if (b.shortD > 0.5) {
-          queueLabel(midY, '$' + fmt(midPx) + ' ✓', 'rgba(150,160,180,.85)', b.shortD - 0.4, false);
+          // consumed zone — ไม่วาด label เพื่อลด noise
         }
       } else {
         const alpha = Math.pow(b.shortD, 0.5) * opac;
@@ -1937,7 +2057,7 @@ function drawLiqHeatmap(ctx, pL, pR, pT, pW, pH, mw, lo, hi, p2y, lastPx, visCan
           ctx.beginPath(); ctx.moveTo(pL, midY); ctx.lineTo(pL + barW, midY); ctx.stroke();
         }
         if (b.shortD > 0.5) {
-          queueLabel(midY, '$' + fmt(midPx), heatColor(Math.min(1, b.shortD + 0.2), 0.95), b.shortD, b.shortD > 0.75);
+          if (b.shortD > 0.5) queueLabel(midY, '$' + fmt(midPx), heatColor(Math.min(1, b.shortD + 0.2), 0.95), b.shortD, b.shortD > 0.75);
         }
       }
     }
@@ -1957,7 +2077,7 @@ function drawLiqHeatmap(ctx, pL, pR, pT, pW, pH, mw, lo, hi, p2y, lastPx, visCan
           ctx.setLineDash([3, 3]);
           ctx.beginPath(); ctx.moveTo(pL, midY); ctx.lineTo(pL + barW, midY); ctx.stroke();
           ctx.setLineDash([]);
-          queueLabel(midY, '⚡✓ $' + fmt(midPx), 'rgba(190,190,150,.8)', b.clusterD + 0.6, false);
+          // consumed cluster — ไม่วาด label
         }
       } else {
         const alpha = Math.pow(b.clusterD, 0.45) * opac * 0.9;
@@ -1969,7 +2089,7 @@ function drawLiqHeatmap(ctx, pL, pR, pT, pW, pH, mw, lo, hi, p2y, lastPx, visCan
           ctx.lineWidth = b.clusterD > 0.6 ? 2 : 1;
           ctx.setLineDash([]);
           ctx.beginPath(); ctx.moveTo(pL, midY); ctx.lineTo(pL + barW, midY); ctx.stroke();
-          queueLabel(midY, '⚡ $' + fmt(midPx), `rgba(255,230,0,0.95)`, b.clusterD + 1, true);
+          queueLabel(midY, '$' + fmt(midPx), `rgba(255,230,0,0.95)`, b.clusterD + 1, true);
         }
       }
     }
@@ -1984,7 +2104,7 @@ function drawLiqHeatmap(ctx, pL, pR, pT, pW, pH, mw, lo, hi, p2y, lastPx, visCan
 function drawPendingLiqLabels(ctx) {
   if (!pendingLiqLabels.length) return;
   const placedY = [];
-  const MIN_LABEL_GAP = 14;
+  const MIN_LABEL_GAP = 20; // เพิ่มระยะห่าง label ลด clutter
   function canPlace(midY) {
     return placedY.every(y => Math.abs(y - midY) >= MIN_LABEL_GAP);
   }
@@ -2230,144 +2350,99 @@ function _drawLiqHistogramLegacy(ctx, panelX, panelW, barMaxW, pT, pH, lo, hi, p
 /* ═══════════════════════════════════════════════════════
    TOOLTIP
 ═══════════════════════════════════════════════════════ */
-MC.addEventListener('mousemove', ev => {
+/* ═══════════════════════════════════════════════════════
+   TOOLTIP CORE — ใช้ร่วมกันทั้ง mouse และ touch
+   showTooltipAt(clientX, clientY) — คำนวณราคา+candle แล้ววาด tooltip
+   hideTooltip()                   — ซ่อน + ล้าง auto-hide timer
+═══════════════════════════════════════════════════════ */
+let _ttHideTimer = null;
+
+function hideTooltip() {
+  clearTimeout(_ttHideTimer);
+  _ttHideTimer = null;
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+function showTooltipAt(clientX, clientY, autoHideMs) {
   if (!bands.length) return;
-  const rect = MC.getBoundingClientRect();
-  const yMouse = ev.clientY - rect.top;
+
+  const rect   = MC.getBoundingClientRect();
+  const xRel   = clientX - rect.left;
+  const yRel   = clientY - rect.top;
   const { lo, hi } = getViewport();
-  const pH = MC.clientHeight - 20;
-  const px = hi - ((yMouse - 10) / pH) * (hi - lo);
-  if (!isFinite(px) || px < lo || px > hi) { document.getElementById('tooltip').style.display = 'none'; return; }
+  const pH     = MC.clientHeight - 20;
+  const px     = hi - ((yRel - 10) / pH) * (hi - lo);
+  if (!isFinite(px) || px < lo || px > hi) { hideTooltip(); return; }
 
-  // BUG-D FIX: แสดง liq จาก P_agg liqZones ถ้ามี, fallback impliedLev ถ้าไม่มี
-  const L = S.impliedLev, M = S.mmr || 0.0125;
-  // fallback สำหรับกรณีไม่มี liqZones (ใช้ใน tooltip header)
-  const liqL_implied = (px * (1 - 1 / L + M)).toFixed(2);
-  const liqS_implied = (px * (1 + 1 / L - M)).toFixed(2);
-  // คำนวณ liq ทั้ง 8 levels จาก P_agg (เหมือน CoinGlass)
-  let liqZoneRows = '';
-  if (S.pAgg > 0 && S.liqZones.length > 0) {
-    const rowsL = S.liqZones.slice().reverse().map(z => {
-      const dist = ((px - z.longLiq) / px * 100).toFixed(2);
-      const barW = Math.round(z.densityScore * 40);
-      return `<div style='display:flex;align-items:center;gap:4px;margin:1px 0'>`
-        + `<span style='color:var(--dim);font-size:9px;width:22px'>${z.lev}x</span>`
-        + `<div style='width:${barW}px;height:4px;background:rgba(224,64,251,0.7);border-radius:1px'></div>`
-        + `<span style='color:var(--liq-long-hi);font-size:10px'>$${fmt(z.longLiq)}</span>`
-        + `<span style='color:var(--dim);font-size:9px;margin-left:2px'>-${dist}%</span>`
-        + `</div>`;
-    }).join('');
-    const rowsS = S.liqZones.map(z => {
-      const dist = ((z.shortLiq - px) / px * 100).toFixed(2);
-      const barW = Math.round(z.densityScore * 40);
-      return `<div style='display:flex;align-items:center;gap:4px;margin:1px 0'>`
-        + `<span style='color:var(--dim);font-size:9px;width:22px'>${z.lev}x</span>`
-        + `<div style='width:${barW}px;height:4px;background:rgba(38,198,218,0.7);border-radius:1px'></div>`
-        + `<span style='color:var(--liq-short-hi);font-size:10px'>$${fmt(z.shortLiq)}</span>`
-        + `<span style='color:var(--dim);font-size:9px;margin-left:2px'>+${dist}%</span>`
-        + `</div>`;
-    }).join('');
-    liqZoneRows = `<div style='margin-top:5px;border-top:1px solid rgba(255,255,255,.1);padding-top:4px'>`
-      + `<div style='color:var(--liq-long-hi);font-size:9px;font-weight:600;margin-bottom:2px'>▼ LONG LIQ ZONES (from P_agg)</div>`
-      + rowsL
-      + `<div style='color:var(--liq-short-hi);font-size:9px;font-weight:600;margin:4px 0 2px'>▲ SHORT LIQ ZONES</div>`
-      + rowsS
-      + `</div>`;
-  }
-
-  // หา nearest liqZone level จาก P_agg zones (Phase 3)
-  let nearestZoneInfo = '';
-  if (S.liqZones.length > 0 && S.pAgg > 0) {
-    let minDist = Infinity, nearestZone = null;
-    for (const zone of S.liqZones) {
-      const dL = Math.abs(px - zone.longLiq);
-      const dS = Math.abs(px - zone.shortLiq);
-      const d = Math.min(dL, dS);
-      if (d < minDist) {
-        minDist = d;
-        nearestZone = { ...zone, side: dL < dS ? 'Long' : 'Short', price: dL < dS ? zone.longLiq : zone.shortLiq };
-      }
-    }
-    if (nearestZone && minDist / S.pAgg < 0.005) {
-      // อยู่ใน 0.5% ของ zone → แสดง zone info
-      nearestZoneInfo = `<div style="margin-top:4px;padding:3px 0 0;border-top:1px solid rgba(255,255,255,.1)">
-        <span style="color:var(--gold);font-weight:600">⚡ P_agg Zone ${nearestZone.lev}x ${nearestZone.side}</span>
-        <span style="color:var(--dim);margin-left:4px">±${nearestZone.distPct.toFixed(2)}%</span>
-        <div style="color:var(--dim);font-size:9px">density: ${(nearestZone.densityScore*100).toFixed(0)}%</div>
-      </div>`;
-    }
-  }
-
-  // หา band ที่ hover
+  // หา band ที่ราคา hover ตกอยู่ (ถ้ามี)
   const band = bands.find(b => px >= b.lo && px <= b.hi);
 
-  // คำนวณ Liquidation Leverage volume รวม (long+short) ที่ band นี้ — แบบ Coinglass
-  const liqLevUsd = band ? (band.longVolUsd || 0) + (band.shortVolUsd || 0) : 0;
+  // หา candle ที่ตรงกับ xRel — layout ตรงกับ draw(): pL=6, pR=100
+  const _vpResult = getViewport();
+  const _vc  = _vpResult.visCands || [];
+  const _pL  = 6, _pR = 100;
+  const _pW  = MC.clientWidth - _pL - _pR;
+  const _cw  = _pW / Math.max(1, _vc.length);
+  const cidx = Math.max(0, Math.min(_vc.length - 1, Math.floor((xRel - _pL) / _cw)));
+  const hc   = _vc[cidx] || _vc[_vc.length - 1];
 
-  // สร้าง mini bar สำหรับแต่ละ side (% relative to band max)
-  function miniBar(ratio, color) {
-    const w = Math.round(Math.min(ratio, 1) * 60);
-    return `<div style="display:inline-block;width:${w}px;height:5px;background:${color};border-radius:2px;vertical-align:middle;margin-right:4px"></div>`;
-  }
+  const dateStr = hc ? (() => {
+    const d   = new Date(hc.t);
+    const day = d.getDate().toString().padStart(2, '0');
+    const mon = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+    return `${day} ${mon} ${d.getFullYear()}, ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+  })() : '';
 
-  const liqInfo = band
-    ? `<div class="tt-liq">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-          <span style="color:var(--gold);font-weight:600;font-size:12px">⚡ Liquidation Leverage</span>
-        </div>
-        <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:5px">
-          ${fmtM(liqLevUsd)}
-        </div>
-        <div style="margin-bottom:2px">
-          ${miniBar(band.longD, 'var(--liq-long-hi)')}
-          <span style="color:var(--liq-long-hi)">Long</span>
-          <span style="color:var(--dim);margin-left:4px">${fmtM(band.longVolUsd || 0)} (${(band.longD*100).toFixed(0)}%)</span>
-        </div>
-        <div>
-          ${miniBar(band.shortD, 'var(--liq-short-hi)')}
-          <span style="color:var(--liq-short-hi)">Short</span>
-          <span style="color:var(--dim);margin-left:4px">${fmtM(band.shortVolUsd || 0)} (${(band.shortD*100).toFixed(0)}%)</span>
-        </div>
-        ${band.clusterD > 0.2 ? '<div style="margin-top:4px"><b style="color:var(--gold)">⚡ Cluster zone</b></div>' : ''}
-      </div>` : '';
+  // Liquidation Leverage — แสดงเฉพาะเมื่ออยู่ใน zone เหมือน Coinglass
+  const liqLev = band ? (() => {
+    const totalD = (band.longD || 0) + (band.shortD || 0) + (band.clusterD || 0);
+    const estOI  = S.totalOI > 0 ? S.totalOI * totalD : null;
+    return estOI ? fmtM(estOI) : null;
+  })() : null;
+
+  const priceStr = px.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const tt = document.getElementById('tooltip');
-  const paggRef = S.pAgg > 0 ? `<div style="color:var(--gold);font-size:10px">P_agg: $${fmt(S.pAgg)}</div>` : '';
-  // BUG-D FIX: แสดง liqZoneRows (P_agg based) หรือ fallback impliedLev
-  const liqFallback = liqZoneRows ? '' :
-    `<div style="margin-top:4px;color:var(--liq-long-hi)">▼ Long Liq: $${fmt(+liqL_implied)}</div>`
-    + `<div style="color:var(--liq-short-hi)">▲ Short Liq: $${fmt(+liqS_implied)}</div>`
-    + `<div style="color:var(--dim);font-size:10px;margin-top:3px">Lev: ${L}x (implied) | MMR: ${(M*100).toFixed(3)}%</div>`;
   tt.innerHTML = `
-    <div class="tt-price">$${fmt(px)}</div>
-    ${paggRef}
-    ${liqFallback}
-    ${liqZoneRows}
-    ${nearestZoneInfo}
-    ${liqInfo}`;
+    <div class="tt-date">${dateStr}</div>
+    <div class="tt-row">
+      <span class="tt-dot" style="background:var(--gold)"></span>
+      <span class="tt-key">Price</span>
+      <span class="tt-val">${priceStr}</span>
+    </div>
+    ${liqLev ? `
+    <div class="tt-row">
+      <span class="tt-dot" style="background:var(--gold)"></span>
+      <span class="tt-key">Liquidation Leverage</span>
+      <span class="tt-val">${liqLev}</span>
+    </div>` : ''}`;
   tt.style.display = 'block';
 
-  // #chartArea มี overflow:hidden — ถ้าปล่อยให้ tooltip ล้นขวา/ล่างจะโดนตัดจนมองไม่เห็นราคาเลย
-  // (เกิดขึ้นบ่อยตอน hover แถบ histogram/price-label ทางขวาสุด ซึ่งเป็นจุดที่มักอยากดูราคามากที่สุด)
-  // เลยต้อง measure ขนาดจริงแล้วสลับด้าน/หนีบไว้ในกรอบ chartArea เสมอ
+  // วาง tooltip ในกรอบ canvas — สลับซ้าย/ขวา-บน/ล่างถ้าจะล้นขอบ
   const areaW = MC.clientWidth, areaH = MC.clientHeight;
-  const ttW = tt.offsetWidth, ttH = tt.offsetHeight;
-  const mouseX = ev.clientX - rect.left, mouseY = ev.clientY - rect.top;
+  const ttW   = tt.offsetWidth,  ttH  = tt.offsetHeight;
 
-  let left = mouseX + 16;
-  if (left + ttW > areaW) left = mouseX - ttW - 16;   // ไม่พอ → สลับไปด้านซ้ายของเมาส์
+  let left = xRel + 16;
+  if (left + ttW > areaW) left = xRel - ttW - 16;
   left = Math.max(4, Math.min(left, areaW - ttW - 4));
 
-  let top = mouseY + 12;
-  if (top + ttH > areaH) top = mouseY - ttH - 12;
+  let top = yRel + 12;
+  if (top + ttH > areaH) top = yRel - ttH - 12;
   top = Math.max(4, Math.min(top, areaH - ttH - 4));
 
   tt.style.left = left + 'px';
-  tt.style.top  = top + 'px';
-});
-MC.addEventListener('mouseleave', () => {
-  document.getElementById('tooltip').style.display = 'none';
-});
+  tt.style.top  = top  + 'px';
+
+  // auto-hide สำหรับ touch (mouse ซ่อนผ่าน mouseleave แทน)
+  if (autoHideMs) {
+    clearTimeout(_ttHideTimer);
+    _ttHideTimer = setTimeout(hideTooltip, autoHideMs);
+  }
+}
+
+// ── Mouse ──
+MC.addEventListener('mousemove', ev => showTooltipAt(ev.clientX, ev.clientY, 0));
+MC.addEventListener('mouseleave', hideTooltip);
 
 /* ═══════════════════════════════════════════════════════
    STATS UI
@@ -2578,6 +2653,7 @@ document.getElementById('opacSlider').oninput = e => {
   let dragVPX = 0, dragVPY = 0;
   let isDragging = false;
   let lastTouchDist = 0;
+  let touchStartTime = 0;
 
   function clampVP() {
     const total = candles.length;
@@ -2632,11 +2708,12 @@ document.getElementById('opacSlider').oninput = e => {
   // ── Touch: 1-finger = pan, 2-finger = pinch zoom X ──
   MC.addEventListener('touchstart', e => {
     if (e.touches.length === 1) {
-      isDragging   = true;
-      dragStartX   = e.touches[0].clientX;
-      dragStartY   = e.touches[0].clientY;
-      dragVPX      = VP.offsetX;
-      dragVPY      = VP.yOffset;
+      isDragging     = true;
+      touchStartTime = Date.now();
+      dragStartX     = e.touches[0].clientX;
+      dragStartY     = e.touches[0].clientY;
+      dragVPX        = VP.offsetX;
+      dragVPY        = VP.yOffset;
     } else if (e.touches.length === 2) {
       isDragging = false;
       const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -2667,7 +2744,22 @@ document.getElementById('opacSlider').oninput = e => {
     e.preventDefault();
   }, { passive: false });
 
-  MC.addEventListener('touchend', () => { isDragging = false; });
+  MC.addEventListener('touchend', e => {
+    // ── Tap detection: ถ้าเคลื่อนที่น้อย (<10px) และเวลาสั้น (<250ms) = tap → แสดง tooltip ──
+    // ถ้าเป็น pan/pinch ที่เคลื่อนมาก = ไม่แสดง tooltip
+    const t0 = e.changedTouches[0];
+    const movedX = Math.abs(t0.clientX - dragStartX);
+    const movedY = Math.abs(t0.clientY - dragStartY);
+    const elapsed = Date.now() - touchStartTime;
+    const isTap  = isDragging && movedX < 10 && movedY < 10 && elapsed < 300;
+    isDragging = false;
+
+    if (isTap && e.changedTouches.length === 1) {
+      // แสดง tooltip ณ ตำแหน่ง tap — auto-hide หลัง 3 วิ
+      showTooltipAt(t0.clientX, t0.clientY, 3000);
+      e.preventDefault(); // ป้องกัน ghost click / scroll
+    }
+  }, { passive: false });
 
   // ── Double-click: reset viewport ──
   MC.addEventListener('dblclick', () => {
@@ -2697,18 +2789,20 @@ function fmtM(n) {
 }
 
 /* ═══════════════════════════════════════════════════════
-   NEW v18: fetchRealHeatmap — ดึง real liq heatmap จาก Worker /heatmap
-   Worker v14 → GAS v3 → Binance allForceOrders → sparseCells 2D grid
-   ถ้า GAS ส่ง empty grid (fapi geo-block) → realHeatmapData = null → ไม่แสดง overlay
-   ถ้าสำเร็จ → วาด 2D heat overlay ใน drawRealHeatmapOverlay() ก่อน model bands
+   INIT
 ═══════════════════════════════════════════════════════ */
+let aggTimer   = null;
+let priceTimer = null;
+let hmTimer    = null; // NEW v18: real heatmap refresh timer
+
+/* NEW v18: fetchRealHeatmap
+   ดึง real liq grid จาก Worker /heatmap → GAS v3 → Binance allForceOrders
+   ถ้า GAS ส่ง empty (fapi geo-block) → realHeatmapData = null → model bands แสดงปกติ */
 let _hmAbortCtrl = null;
 async function fetchRealHeatmap() {
-  // iv string → hoursBack ที่เหมาะสม
   const ivToHours = { '5m': 4, '15m': 6, '1h': 24, '4h': 48, '1d': 168, '1w': 168 };
   const hoursBack = ivToHours[S.iv] || 24;
-  // iv สำหรับ GAS grid (ใช้ iv เดียวกับ chart แต่ cap ที่ 1h เพื่อไม่ให้ grid หยาบเกิน)
-  const gridIv = ['5m','15m'].includes(S.iv) ? '1h' : (S.iv === '4h' ? '4h' : '1h');
+  const gridIv    = ['5m', '15m'].includes(S.iv) ? '1h' : (S.iv === '4h' ? '4h' : '1h');
   const url = `${CFG.workerUrl}/heatmap?coin=${S.coin}&hoursBack=${hoursBack}&iv=${gridIv}`;
 
   if (_hmAbortCtrl) { try { _hmAbortCtrl.abort(); } catch (_) {} }
@@ -2718,32 +2812,22 @@ async function fetchRealHeatmap() {
     if (!r.ok) { realHeatmapData = null; return; }
     const d = await r.json();
     if (!d.ok || !d.sparseCells || !d.sparseCells.length || !d.maxVol) {
-      // empty grid (fapi block) → ล้างข้อมูลเก่า
-      realHeatmapData = null;
+      realHeatmapData = null; // empty grid (fapi block) → graceful fallback
       return;
     }
-    // เก็บเฉพาะถ้าตรงกับ coin ที่เลือกอยู่ (ป้องกัน race condition)
-    if (d.coin === S.coin) {
+    if (d.coin === S.coin) { // ป้องกัน race condition เมื่อเปลี่ยนเหรียญระหว่างรอ
       realHeatmapData = d;
-      _bandsEpoch++; // trigger redraw
+      _bandsEpoch++;  // trigger redraw
     }
   } catch (e) {
     if (e.name !== 'AbortError') realHeatmapData = null;
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════════════════ */
-let aggTimer   = null;
-let priceTimer = null;
-let hmTimer    = null; // real heatmap refresh timer
-
 async function init() {
   if (aggTimer)   clearInterval(aggTimer);
   if (priceTimer) clearInterval(priceTimer);
   if (hmTimer)    clearInterval(hmTimer);
-  realHeatmapData = null; // reset เมื่อเปลี่ยนเหรียญ/iv
 
   // reset retry counters ทุกครั้งที่ init (เปลี่ยนเหรียญ / โหลดใหม่)
   Object.keys(WS_RETRY).forEach(k => { WS_RETRY[k] = 0; });
@@ -2758,7 +2842,7 @@ async function init() {
   S.pAgg = 0; S.pSpot = 0; S.pFutures = 0;
   S.vSpotTotal = 0; S.vFuturesTotal = 0; S.vTotal = 0;
   S.liqZones = []; S.priceSourcesOk = 0; S.priceIsEstimate = false;
-  realHeatmapData = null; // NEW v18: clear real heatmap เมื่อเปลี่ยนเหรียญ
+  realHeatmapData = null; // NEW v18: clear real grid เมื่อเปลี่ยนเหรียญ/iv
 
   // bump instance tags — ทำให้ onclose/onmessage/onerror ของ WS instance เก่าทั้งหมด
   // ถูก guard ออกทันที ไม่ schedule reconnect ซ้อนกัน เมื่อเปลี่ยนเหรียญหรือ reload
@@ -2783,8 +2867,8 @@ async function init() {
   priceTimer = setInterval(fetchPrice, CFG.priceInterval * 1000);
   aggTimer   = setInterval(fetchAgg,   CFG.aggInterval   * 1000);
 
-  // NEW v18: ดึง real heatmap grid ทันที แล้ว refresh ทุก 5 นาที (ตรงกับ GAS scheduled trigger)
-  // ถ้า GAS ส่ง empty (fapi block) → realHeatmapData = null → model bands แสดงปกติ (graceful fallback)
+  // NEW v18: ดึง real heatmap ทันที แล้ว refresh ทุก 5 นาที (ตรงกับ GAS scheduled trigger)
+  // ถ้า fapi geo-block → empty grid → realHeatmapData = null → model bands แสดงปกติ (graceful)
   fetchRealHeatmap();
   hmTimer = setInterval(fetchRealHeatmap, 5 * 60 * 1000);
 }
