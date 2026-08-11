@@ -4526,7 +4526,8 @@ window.HistoryModule = (function () {
       if (!map[key]) map[key] = { label: _monthLabel(r.dateObj), key, candles: [] };
       map[key].candles.push(r);
     });
-    return Object.values(map).sort((a, b) => a.key.localeCompare(b.key));
+    // เรียงล่าสุดก่อน (descending) — index 0 = เดือนปัจจุบัน
+    return Object.values(map).sort((a, b) => b.key.localeCompare(a.key));
   }
 
   /* ── Build coin bar ─────────────────────────────────────── */
@@ -4534,14 +4535,7 @@ window.HistoryModule = (function () {
     const bar = document.getElementById('histCoinBar');
     if (!bar) return;
     bar.innerHTML = '';
-
-    // Source badge
-    const badge = document.createElement('span');
-    const gasReady = H.GAS_URL && !H.GAS_URL.includes('YOUR_GAS');
-    badge.className = 'hist-source-badge ' + (gasReady ? 'gas' : 'hl');
-    badge.id        = 'histSourceBadge';
-    badge.textContent = gasReady ? 'GAS' : 'LIVE';
-    bar.appendChild(badge);
+    // ไม่แสดง source badge ใน coin bar (แสดงใน info bar แทน)
 
     H.COINS.forEach(c => {
       const btn = document.createElement('button');
@@ -4629,16 +4623,7 @@ window.HistoryModule = (function () {
     if (elSrc) elSrc.textContent = 'แหล่งข้อมูล: ' + (cached?.source || '—');
     if (elCnt) elCnt.textContent = allData.reduce((s, m) => s + m.candles.length, 0) + ' วัน';
 
-    // Live price badge ใน info bar (ถ้ามี)
-    if (px) {
-      const badge = document.getElementById('histSourceBadge');
-      if (badge) {
-        const gasReady = H.GAS_URL && !H.GAS_URL.includes('YOUR_GAS');
-        badge.className   = 'hist-source-badge ' + (gasReady ? 'gas' : 'hl');
-        badge.textContent = (gasReady ? 'GAS' : 'LIVE') + ' $' + _fmtNum(px);
-        badge.style.color = cfg.color;
-      }
-    }
+    // Live price แสดงใน coin button แต่ละตัว (hist-coin-live-px) ไม่ใช่ badge แยก
 
     _buildMonthTabs(allData, monthIdx, coinId);
     _renderMonth(allData, monthIdx, coinId);
@@ -4695,8 +4680,9 @@ window.HistoryModule = (function () {
     const loDate = candles[loIdx] ? _thaiDateShort(candles[loIdx].dateObj) : '';
 
     let momTxt = '';
-    if (idx > 0) {
-      const prev  = allData[idx - 1].candles;
+    // descending order: เดือนก่อนหน้า (เก่ากว่า) อยู่ที่ idx+1
+    if (idx + 1 < allData.length) {
+      const prev  = allData[idx + 1].candles;
       const pOpen = prev[0].open, pClose = prev[prev.length - 1].close;
       const mom   = ((opens - pClose) / pClose) * 100;
       momTxt = (mom >= 0 ? '+' : '') + mom.toFixed(2) + '% จากเดือนก่อน';
