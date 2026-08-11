@@ -99,13 +99,15 @@ select:hover, button:hover { border-color: var(--accent); }
 /* ── STATS ROW ── */
 #statsbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0;
   border-bottom: 1px solid var(--border);
   background: var(--panel);
   flex-shrink: 0;
-  overflow-x: visible;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+#statsbar::-webkit-scrollbar { display: none; }
 .stat { flex: 1; min-width: 90px; padding: 5px 12px; border-right: 1px solid var(--border); }
 .stat:last-child { border-right: none; min-width: 150px; }
 .stat .lbl { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: .5px; }
@@ -117,6 +119,8 @@ select:hover, button:hover { border-color: var(--accent); }
 .src-dots { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
 .src-dot  { font-size: 9px; padding: 1px 5px; border-radius: 3px; background: var(--dim2); color: var(--dim); }
 .src-dot.ok { background: rgba(38,200,122,.15); color: var(--green); }
+/* Desktop-only stats always visible at desktop breakpoint */
+.stat-desktop-only { display: block; }
 
 /* ── MAIN LAYOUT ── */
 #layout {
@@ -533,50 +537,159 @@ canvas { display: block; touch-action: none; }
   /* srcDots — hidden on topbar */
   #srcDots { display: none; }
 
-  /* ══ STATS BAR: horizontal pill scroll ══ */
+  /* ══ STATS BAR: 2-row fixed grid — ไม่ scroll ══ */
   #statsbar {
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    display: grid !important;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: column;
     gap: 0;
-    padding: 0 4px;
-    background: rgba(10,16,24,0.88);
+    padding: 0;
+    background: rgba(8,13,20,0.97);
     border-bottom: 1px solid var(--border);
-  }
-  #statsbar::-webkit-scrollbar { display: none; }
-
-  .stat {
-    min-width: 76px;
-    padding: 5px 10px;
+    overflow: visible !important;
+    flex-wrap: unset !important;
+    height: 72px;
     flex-shrink: 0;
-    border-right: 1px solid rgba(255,255,255,.04);
   }
-  .stat .lbl { font-size: 9px; letter-spacing: .3px; }
-  .stat .val  { font-size: 13px; font-weight: 700; }
-  .stat .stat-sub { font-size: 9px; }
-  .stat-div { display: none; }
 
-  /* Accent primary stats */
-  .stat.primary {
-    background: rgba(64,196,255,.03);
-    border-bottom: 2px solid var(--accent);
-    min-width: 88px;
+  /* hide desktop-only divider */
+  .stat-div { display: none !important; }
+
+  /* ── Base cell ── */
+  .stat {
+    min-width: 0 !important;
+    padding: 5px 8px 4px;
+    border-right: 1px solid rgba(255,255,255,.045);
+    border-bottom: 1px solid rgba(255,255,255,.045);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
   }
-  .stat.primary .val { font-size: 14px; }
+  /* Remove border from last column (right edge) */
+  .stat:nth-child(4n) { border-right: none; }
+  .stat:nth-child(8n) { border-right: none; }
+  /* Remove bottom border from row 2 cells */
+  .stat:nth-child(n+5) { border-bottom: none; }
+  /* Row 1 bottom = slightly more visible divider */
+  .stat:nth-child(-n+4) { border-bottom: 1px solid rgba(255,255,255,.07); }
+
+  .stat .lbl {
+    font-size: 8.5px;
+    letter-spacing: .25px;
+    color: var(--dim);
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.1;
+    margin-bottom: 1px;
+  }
+  .stat .val {
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -.2px;
+  }
+  .stat .stat-sub {
+    font-size: 8px;
+    color: var(--dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1;
+    margin-top: 1px;
+  }
+
+  /* ── Primary cells: P_agg, Coverage — accent left-border ── */
+  .stat.primary {
+    background: rgba(64,196,255,.04);
+  }
+  .stat.primary::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--accent);
+    border-radius: 0 1px 1px 0;
+  }
+  .stat.primary .val { font-size: 13px; }
+
+  /* Long OI cell — green left-border */
+  #sLongOI { }
+  .stat:has(#sLongOI)::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--green);
+    border-radius: 0 1px 1px 0;
+  }
+  /* Short OI cell — red left-border */
+  .stat:has(#sShortOI)::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--red);
+    border-radius: 0 1px 1px 0;
+  }
+
+  /* ── Source dots: compact inline ── */
+  #srcDots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 2px;
+  }
+  .src-dot {
+    font-size: 8px;
+    padding: 0 3px;
+    height: 13px;
+    line-height: 13px;
+    border-radius: 2px;
+    background: var(--dim2);
+    color: var(--dim);
+  }
+  .src-dot.ok {
+    background: rgba(0,230,118,.12);
+    color: var(--green);
+  }
+
+  /* ── Desktop-only stats: hidden in mobile 2×4 grid ── */
+  .stat-desktop-only {
+    display: none !important;
+  }
 
   /* ── Layout: full width, no sidebar ── */
   #sidebar { display: none; }
   #overlayCtrl { display: none !important; }
   #layout { padding-bottom: 0; }
 
+  /* Chart area: clean dark background with subtle gradient */
+  #chartArea {
+    background: linear-gradient(180deg, rgba(6,10,16,1) 0%, rgba(8,14,22,1) 100%);
+  }
+
+  /* Volume canvas — taller on mobile for better readability */
+  #volCanvas {
+    height: 52px !important;
+    border-top: 1px solid rgba(255,255,255,.06);
+    background: rgba(4,8,14,.6);
+  }
+
   /* Canvas caption */
   #caption {
     font-size: 8px;
-    bottom: 4px;
+    bottom: 56px; /* above volume canvas */
     left: 6px;
     right: 6px;
-    opacity: .55;
+    opacity: .45;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1298,8 +1411,9 @@ canvas { display: block; touch-action: none; }
   </label>
 </div>
 
-<!-- STATS ROW -->
+<!-- STATS ROW — Desktop: flex scroll | Mobile: 2×4 fixed grid -->
 <div id="statsbar">
+  <!-- ROW 1 (col 1-4) -->
   <div class="stat primary">
     <div class="lbl">P_agg (5-Exch)</div>
     <div class="val neu" id="sPagg">—</div>
@@ -1309,50 +1423,51 @@ canvas { display: block; touch-action: none; }
     <div class="lbl">Mark Price (HL)</div>
     <div class="val" id="sMark">—</div>
   </div>
-  <div class="stat-div"></div>
-  <div class="stat">
-    <div class="lbl">Spot Vol 24h</div>
+  <div class="stat primary">
+    <div class="lbl">Spot Vol 24H</div>
     <div class="val" id="sSpotVol">—</div>
   </div>
-  <div class="stat">
-    <div class="lbl">Futures Vol 24h</div>
+  <div class="stat primary">
+    <div class="lbl">Futures Vol 24H</div>
     <div class="val" id="sFutVol">—</div>
   </div>
-  <div class="stat primary">
+  <!-- ROW 2 (col 1-4) -->
+  <div class="stat">
     <div class="lbl">Coverage</div>
     <div class="val" id="sCoverage">—</div>
     <div class="stat-sub" id="sCoverageSub">—</div>
   </div>
-  <div class="stat primary">
+  <div class="stat">
     <div class="lbl">Blended OI</div>
     <div class="val" id="sOI">—</div>
     <div class="stat-sub" id="sOISub">—</div>
   </div>
   <div class="stat">
-    <div class="lbl">Long OI (est.)</div>
+    <div class="lbl">Long OI (Est.)</div>
     <div class="val up" id="sLongOI">—</div>
   </div>
   <div class="stat">
-    <div class="lbl">Short OI (est.)</div>
+    <div class="lbl">Short OI (Est.)</div>
     <div class="val dn" id="sShortOI">—</div>
   </div>
-  <div class="stat">
+  <!-- Hidden on mobile (desktop flex shows all) -->
+  <div class="stat stat-desktop-only">
     <div class="lbl">Avg Funding</div>
     <div class="val" id="sFund">—</div>
   </div>
-  <div class="stat">
+  <div class="stat stat-desktop-only">
     <div class="lbl">L/S Ratio</div>
     <div class="val" id="sLS">—</div>
   </div>
-  <div class="stat">
+  <div class="stat stat-desktop-only">
     <div class="lbl">Buy Vol (session)</div>
     <div class="val up" id="sBuyV">—</div>
   </div>
-  <div class="stat">
+  <div class="stat stat-desktop-only">
     <div class="lbl">Sell Vol (session)</div>
     <div class="val dn" id="sSellV">—</div>
   </div>
-  <div class="stat">
+  <div class="stat stat-desktop-only">
     <div class="lbl">แหล่งข้อมูล</div>
     <div class="src-dots" id="srcDots">
       <span class="src-dot" id="dot-binance">BN</span>
@@ -1709,7 +1824,9 @@ function resize() {
   _pulseEpoch = -1; // force pulse overlay rebuild on resize
   const area = document.getElementById('chartArea');
   const tw = area.clientWidth;
-  const th = area.clientHeight - 64; // 64 = volCanvas height
+  // mobile: 52px vol canvas, desktop: 64px
+  const volH = window.innerWidth <= 768 ? 52 : 64;
+  const th = area.clientHeight - volH;
 
   MC.style.width  = tw + 'px';
   MC.style.height = th + 'px';
@@ -1718,9 +1835,9 @@ function resize() {
   cx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
   VC.style.width  = tw + 'px';
-  VC.style.height = '64px';
+  VC.style.height = volH + 'px';
   VC.width  = tw * DPR;
-  VC.height = 64 * DPR;
+  VC.height = volH * DPR;
   vx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
   needsRedraw = true;
@@ -2532,7 +2649,8 @@ function draw() {
   const { startIdx, visCands, lo, hi } = getViewport();
   if (!visCands.length) return;
 
-  const pL = 6, pR = 100, pT = 10, pB = 10;
+  const isMob = window.innerWidth <= 768;
+  const pL = isMob ? 4 : 6, pR = isMob ? 76 : 100, pT = isMob ? 8 : 10, pB = isMob ? 8 : 10;
   const pW = mw - pL - pR, pH = mh - pT - pB;
   const p2y = p => pT + pH - ((p - lo) / (hi - lo)) * pH;
   const n = visCands.length, cw = pW / n;
@@ -2551,33 +2669,44 @@ function draw() {
   /* ── LAYER 1: Grid + price labels (วาดบน heatmap ก่อน candle) ──
      เดิมตั้ง font/textAlign ไว้แต่ไม่เคยเรียก fillText จริง — ไม่มีตัวเลขราคาบนแกนเลย
      วาง label ที่ขอบซ้าย (แถบขวาเต็มไปด้วย histogram/mark-price/zone-label อยู่แล้ว) */
-  cx.font = '10px "Segoe UI",sans-serif';
+  const gridSteps = isMob ? 5 : 8;
+  cx.font = `${isMob ? 9 : 10}px "Segoe UI",system-ui,sans-serif`;
   cx.textAlign = 'left';
-  const gridSteps = 8;
   for (let i = 0; i <= gridSteps; i++) {
     const pv = lo + (hi - lo) * i / gridSteps, y = p2y(pv);
-    cx.strokeStyle = 'rgba(255,255,255,.05)';
+    // subtle grid line
+    cx.strokeStyle = i === 0 || i === gridSteps
+      ? 'rgba(255,255,255,.04)'
+      : 'rgba(255,255,255,.035)';
     cx.lineWidth = 1;
     cx.setLineDash([]);
     cx.beginPath(); cx.moveTo(pL, y); cx.lineTo(mw - pR, y); cx.stroke();
 
-    // ตัวเลขราคาแกน — แสดงตลอดเวลา (ไม่ใช่แค่ตอน hover) เหมือนแกนราคาปกติของกราฟ
-    if (y > pT + 8 && y < pT + pH - 8) {
-      cx.fillStyle = 'rgba(205,215,230,.4)';
-      cx.fillText('$' + fmt(pv), pL + 3, y - 3);
+    // price axis labels — readable on mobile
+    if (y > pT + 10 && y < pT + pH - 10) {
+      cx.fillStyle = isMob ? 'rgba(180,200,225,.45)' : 'rgba(205,215,230,.4)';
+      cx.fillText('$' + fmt(pv), pL + 3, y - 2);
     }
   }
 
   /* ── LAYER 2: Candlesticks (วาดบน consumed bands, ใต้ active bands) ── */
+  const candleBodyRatio = isMob ? 0.68 : 0.72;
   visCands.forEach((c, i) => {
-    const x = pL + i * cw, bw = Math.max(1.5, cw * 0.72), xc = x + cw / 2;
+    const x = pL + i * cw;
+    const bw = Math.max(isMob ? 1.2 : 1.5, cw * candleBodyRatio);
+    const xc = x + cw / 2;
     const up = c.c >= c.o;
-    cx.strokeStyle = cx.fillStyle = up ? '#00e676' : '#ff1744';
-    cx.lineWidth = 1;
+    const bullColor = '#00e676';
+    const bearColor = '#ff1744';
+    // Wick
+    cx.strokeStyle = up ? bullColor : bearColor;
+    cx.lineWidth = Math.max(1, Math.min(1.5, cw * 0.12));
     cx.setLineDash([]);
     cx.beginPath(); cx.moveTo(xc, p2y(c.h)); cx.lineTo(xc, p2y(c.l)); cx.stroke();
+    // Body
     const bodyY = Math.min(p2y(c.o), p2y(c.c));
-    const bodyH = Math.max(1.5, Math.abs(p2y(c.c) - p2y(c.o)));
+    const bodyH = Math.max(isMob ? 1 : 1.5, Math.abs(p2y(c.c) - p2y(c.o)));
+    cx.fillStyle = up ? bullColor : bearColor;
     cx.fillRect(x + (cw - bw) / 2, bodyY, bw, bodyH);
   });
 
@@ -2632,18 +2761,27 @@ function draw() {
   if (S.markPx > 0) {
     const y = p2y(S.markPx);
     if (y >= pT && y <= pT + pH) {
-      cx.strokeStyle = 'rgba(90,180,255,.9)';
+      cx.strokeStyle = 'rgba(90,180,255,.85)';
       cx.lineWidth = 1;
-      cx.setLineDash([4, 3]);
+      cx.setLineDash([3, 3]);
       cx.beginPath(); cx.moveTo(pL, y); cx.lineTo(mw - pR, y); cx.stroke();
       cx.setLineDash([]);
-      // Mark price box label
-      cx.fillStyle = 'rgba(40,80,140,.95)';
-      cx.fillRect(mw - pR + 2, y - 8, pR - 4, 16);
-      cx.fillStyle = '#7ec8ff';
-      cx.font = 'bold 11px "Segoe UI",sans-serif';
+      // Mark price box — compact on mobile
+      const boxH = isMob ? 14 : 16;
+      const boxFontSize = isMob ? 10 : 11;
+      cx.fillStyle = 'rgba(20,50,110,.96)';
+      cx.beginPath();
+      cx.roundRect ? cx.roundRect(mw - pR + 1, y - boxH/2, pR - 2, boxH, 3)
+                   : cx.rect(mw - pR + 1, y - boxH/2, pR - 2, boxH);
+      cx.fill();
+      cx.strokeStyle = 'rgba(90,180,255,.4)';
+      cx.lineWidth = 1;
+      cx.setLineDash([]);
+      cx.stroke();
+      cx.fillStyle = '#82d4ff';
+      cx.font = `bold ${boxFontSize}px "Segoe UI",system-ui,sans-serif`;
       cx.textAlign = 'left';
-      cx.fillText('$' + fmt(S.markPx), mw - pR + 5, y + 4);
+      cx.fillText('$' + fmt(S.markPx), mw - pR + 4, y + boxFontSize * 0.35);
     }
   }
 
@@ -2651,17 +2789,27 @@ function draw() {
   drawPendingLiqLabels(cx);
 
   /* ── Volume bars (canvas แยก) ── */
+  const volHCanvas = VC.clientHeight;
   const maxV = Math.max(...visCands.map(c => c.v), 1);
+  // gradient fill for volume bars
   visCands.forEach((c, i) => {
-    const x = pL + i * cw, bw = Math.max(1.5, cw * 0.72);
-    const h2 = (c.v / maxV) * (vh - 8);
-    vx.fillStyle = c.c >= c.o ? 'rgba(0,230,118,.4)' : 'rgba(255,23,68,.4)';
-    vx.fillRect(x + (cw - bw) / 2, vh - 4 - h2, bw, h2);
+    const x = pL + i * cw;
+    const bw = Math.max(isMob ? 1 : 1.5, cw * candleBodyRatio);
+    const normH = (c.v / maxV);
+    const barH = normH * (volHCanvas - 6);
+    const up = c.c >= c.o;
+    // brighter bars for higher volume
+    const alpha = 0.28 + normH * 0.35;
+    vx.fillStyle = up
+      ? `rgba(0,230,118,${alpha})`
+      : `rgba(255,23,68,${alpha})`;
+    vx.fillRect(x + (cw - bw) / 2, volHCanvas - 3 - barH, bw, barH);
   });
-  vx.fillStyle = '#3a4a60';
-  vx.font = '10px "Segoe UI",sans-serif';
+  // Volume label
+  vx.fillStyle = 'rgba(61,85,112,.8)';
+  vx.font = `${isMob ? 9 : 10}px "Segoe UI",sans-serif`;
   vx.textAlign = 'left';
-  vx.fillText('Volume', pL + 2, 11);
+  vx.fillText('Volume', pL + 2, 10);
 }
 
 /* ═══════════════════════════════════════════════════════
