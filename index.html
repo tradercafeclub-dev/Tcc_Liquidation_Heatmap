@@ -88,6 +88,13 @@ select, button {
   cursor: pointer;
   transition: border-color .15s;
 }
+select {
+  color-scheme: dark; /* บังคับ browser render dropdown list เป็นพื้นดำ */
+}
+select option {
+  background: var(--bg);
+  color: var(--text);
+}
 select:hover, button:hover { border-color: var(--accent); }
 
 .spc { flex: 1; }
