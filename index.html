@@ -436,7 +436,7 @@ canvas { display: block; touch-action: none; }
     height: 48px;
     gap: 8px;
     flex-wrap: nowrap;
-    overflow: hidden;
+    overflow: visible;
     border-bottom: 1px solid var(--border);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -468,6 +468,7 @@ canvas { display: block; touch-action: none; }
     background: rgba(255,255,255,.04);
     color: var(--text);
     flex-shrink: 0;
+    min-width: 0;
     -webkit-appearance: none;
     appearance: none;
     cursor: pointer;
@@ -477,6 +478,8 @@ canvas { display: block; touch-action: none; }
     background-position: right 8px center;
     padding-right: 22px;
   }
+  #coinSel { min-width: 64px; }
+  #ivSel   { min-width: 52px; }
   #coinSel:active, #ivSel:active {
     border-color: var(--accent);
     background-color: rgba(64,196,255,.08);
@@ -526,7 +529,7 @@ canvas { display: block; touch-action: none; }
     border-bottom: 1px solid var(--border);
     overflow: visible !important;
     flex-wrap: unset !important;
-    height: 72px;
+    height: 84px;
     flex-shrink: 0;
   }
 
@@ -554,8 +557,8 @@ canvas { display: block; touch-action: none; }
   .stat:nth-child(-n+4) { border-bottom: 1px solid rgba(255,255,255,.07); }
 
   .stat .lbl {
-    font-size: 8.5px;
-    letter-spacing: .25px;
+    font-size: 8px;
+    letter-spacing: .2px;
     color: var(--dim);
     text-transform: uppercase;
     white-space: nowrap;
@@ -565,16 +568,16 @@ canvas { display: block; touch-action: none; }
     margin-bottom: 1px;
   }
   .stat .val {
-    font-size: 12.5px;
+    font-size: 11.5px;
     font-weight: 700;
-    line-height: 1.1;
+    line-height: 1.15;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     letter-spacing: -.2px;
   }
   .stat .stat-sub {
-    font-size: 8px;
+    font-size: 7.5px;
     color: var(--dim);
     white-space: nowrap;
     overflow: hidden;
@@ -595,7 +598,7 @@ canvas { display: block; touch-action: none; }
     background: var(--accent);
     border-radius: 0 1px 1px 0;
   }
-  .stat.primary .val { font-size: 13px; }
+  .stat.primary .val { font-size: 12px; }
 
   /* Long OI cell — green left-border */
   #sLongOI { }
@@ -972,14 +975,24 @@ canvas { display: block; touch-action: none; }
     padding-bottom: 56px;
   }
   .hist-coin-bar {
-    padding: 8px 12px;
-    gap: 6px;
+    padding: 6px 10px;
+    gap: 5px;
     overflow-x: auto;
     flex-wrap: nowrap;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    align-items: center;
+    top: 0; /* historyPanel เริ่มใต้ topbar+statsbar อยู่แล้ว */
   }
   .hist-coin-bar::-webkit-scrollbar { display: none; }
+  /* badge อยู่ซ้ายสุด shrink ไม่ได้ */
+  .hist-coin-bar .hist-source-badge {
+    flex-shrink: 0;
+    white-space: nowrap;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .hist-coin-btn {
     padding: 5px 10px;
     font-size: 11px;
@@ -1016,13 +1029,19 @@ canvas { display: block; touch-action: none; }
   display: none;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   background: #0b0e14;
   color: #e2e8f0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 14px;
   -webkit-overflow-scrolling: touch;
 }
-#historyPanel.active { display: flex; flex-direction: column; }
+/* display:block + min-height:0 เพื่อให้ flex:1 + overflow-y:auto ทำงานใน body flex column
+   และ sticky position ใน scroll container ทำงานได้ */
+#historyPanel.active {
+  display: block;
+  min-height: 0;
+}
 
 /* Tab button in topbar */
 #historyTabBtn {
@@ -1051,9 +1070,15 @@ canvas { display: block; touch-action: none; }
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
   position: sticky;
   top: 0;
   z-index: 150;
+}
+/* source badge ไม่ shrink — แสดงเต็ม */
+.hist-coin-bar .hist-source-badge {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .hist-coin-btn {
   display: flex; align-items: center; gap: 6px;
