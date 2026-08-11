@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TCC Hunter v2 — LiqHeatmap + Daily History</title>
+<title>TCC Hunter v3 — LiqHeatmap + Daily History</title>
 <link rel="icon" type="image/png" href="https://i.ibb.co/7xc9KFL5/TCC-Small-1-Logo.png">
 <link rel="apple-touch-icon" href="https://i.ibb.co/7xc9KFL5/TCC-Small-1-Logo.png">
 <style>
@@ -148,21 +148,14 @@ canvas { display: block; touch-action: none; }
   background: rgba(7,11,18,.94);
   border: 1px solid var(--border2);
   border-radius: 7px;
-  padding: 8px 12px;
-  font-size: 11px;
-  display: none;
-  z-index: 9;
-  line-height: 1.8;
-  box-shadow: 0 8px 24px rgba(0,0,0,.6);
-  min-width: 220px;
-}
-#tooltip /* Coinglass-style tooltip */
-#tooltip {
-  min-width: 200px;
-  max-width: 260px;
   padding: 10px 13px;
   font-size: 12px;
+  display: none;
+  z-index: 9;
   line-height: 1.5;
+  box-shadow: 0 8px 24px rgba(0,0,0,.6);
+  min-width: 200px;
+  max-width: 260px;
 }
 .tt-date {
   font-size: 11px;
@@ -260,14 +253,6 @@ canvas { display: block; touch-action: none; }
 }
 .leg-line.thick { height: 5px; }
 
-/* Liq zone size legend */
-#sizeGuide {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
-  font-size: 10px;
-  color: var(--dim);
-}
-#sizeGuide .title { text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
 .sz-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
 .sz-line { height: 2px; background: var(--gold); border-radius: 1px; }
 
@@ -282,8 +267,7 @@ canvas { display: block; touch-action: none; }
 .src-status.ok      { background: rgba(38,200,122,.12); color: var(--green); }
 .src-status.err     { background: rgba(232,69,90,.12); color: var(--red); }
 .src-status.partial { background: rgba(255,215,0,.12); color: var(--gold); }
-.src-status.blocked { background: rgba(120,120,120,.10); color: #888; }
-  .src-sub { font-size: 9px; opacity: .6; margin-left: 2px; text-transform: uppercase; letter-spacing: .03em; }
+.src-sub { font-size: 9px; opacity: .6; margin-left: 2px; text-transform: uppercase; letter-spacing: .03em; }
 .src-status.blocked { background: rgba(120,120,180,.15); color: #8888cc; }
 .src-status.wait    { background: rgba(255,215,0,.08); color: #888; }
 .feed-item.liq { background: rgba(255,215,0,.05); }
@@ -357,13 +341,7 @@ canvas { display: block; touch-action: none; }
    MOBILE RESPONSIVE — breakpoint 768px
 ══════════════════════════════════════════════════════════════ */
 
-/* ── Mobile bottom sheet trigger button ── */
-#mobileCtrlBtn {
-  display: none;
-}
-#mobileSidebarBtn {
-  display: none;
-}
+
 
 
 /* ══ Bottom Sheet — global (hidden by default on ALL screens) ══ */
@@ -516,8 +494,7 @@ canvas { display: block; touch-action: none; }
   /* History tab button — hidden in topbar, moved to bottom nav */
   #historyTabBtn { display: none; }
 
-  /* Mobile ⚙ ☰ buttons — hidden, replaced by bottom nav */
-  #mobileCtrlBtn, #mobileSidebarBtn { display: none !important; }
+
 
   /* spacer not needed */
   .spc { display: none; }
@@ -1333,11 +1310,11 @@ canvas { display: block; touch-action: none; }
 
 <!-- TOP BAR -->
 <div id="topbar">
-  <h1>TCC Hunter <em>· v2</em></h1>
+  <h1>TCC Hunter <em>· v3</em></h1>
   <button id="historyTabBtn" onclick="HistoryModule.togglePanel()">📈 History</button>
   <select id="coinSel">
     <option>BTC</option><option>ETH</option><option>SOL</option>
-    <option>HYPE</option><option>DOGE</option><option>BNB</option>
+    <option>BNB</option><option>XRP</option><option>DOGE</option><option>ADA</option>
   </select>
   <select id="ivSel">
     <option value="5m">5m</option>
@@ -1359,9 +1336,7 @@ canvas { display: block; touch-action: none; }
   <span id="fallbackTag" style="display:none;font-size:11px;padding:2px 8px;border-radius:4px;background:rgba(255,69,58,.14);color:#ff6b5e;white-space:nowrap">
     ⚠ Worker ล่ม — ใช้ Hyperliquid สำรองเท่านั้น (ไม่ใช่ P_agg จาก 5 เอ็กซ์เชนจ์)
   </span>
-  <!-- Mobile-only buttons (legacy, replaced by bottom nav on mobile) -->
-  <button id="mobileCtrlBtn" aria-label="ตั้งค่าการแสดงผล" title="Controls" style="display:none">⚙</button>
-  <button id="mobileSidebarBtn" aria-label="ข้อมูลและสถานะ" title="Info" style="display:none">☰</button>
+
 </div>
 
 <!-- MOBILE BOTTOM NAV (hidden on desktop via CSS) -->
@@ -1566,7 +1541,7 @@ canvas { display: block; touch-action: none; }
     <div id="ttLineV"></div>
     <div id="ttDot"></div>
     <div id="tooltip"></div>
-    <div id="caption">🟠 LONG Liq (เส้น+label ซ้าย) | 🔵 SHORT Liq (เส้น+label ขวา) | ⚡ Cluster (เส้นทอง กลาง) | เส้นประ = consumed | ◆ = Liq จริง (BN)</div>
+    <div id="caption">🟧 LONG Liq (เส้น+label ซ้าย) | 🩵 SHORT Liq (เส้น+label ขวา) | ⚡ Cluster (เส้นทอง กลาง) | เส้นประ = consumed | 🟣 Liq จริง (BN)</div>
   </div>
 
   <!-- SIDEBAR -->
@@ -1766,7 +1741,7 @@ const VP_VIS_MIN = 20, VP_VIS_MAX = 260;
 let candles = [];
 let trades  = [];  // { px, sz, usd, side, ts, exch } — เทรดจริงจากหลายเอ็กซ์เชนจ์ (ไม่ใช่แค่ HL อีกต่อไป)
 let realLiqs = []; // { px, usd, side:'long'|'short', ts } — liquidation ที่ "เกิดจริง" จาก Binance forceOrder@arr
-// NEW v18: Real liq heatmap grid จาก Worker /heatmap → GAS v3 → Binance allForceOrders
+// Real liq heatmap grid จาก Worker /heatmap → GAS v4 → Binance allForceOrders
 // sparseCells: [[t, p, usd], ...] — 2D grid แบบ CoinGlass (time × price × USD volume)
 let realHeatmapData = null; // { timeBins, priceBins, sparseCells, maxVol, totalEvents, totalUsd, ts, coin }
 let bands   = [];  // 160 price bands { lo, hi, longD, shortD, clusterD }
@@ -2655,7 +2630,7 @@ function draw() {
   const p2y = p => pT + pH - ((p - lo) / (hi - lo)) * pH;
   const n = visCands.length, cw = pW / n;
 
-  /* ── LAYER 0a: Real liq grid (CoinGlass-style) จาก Worker /heatmap + GAS v3 ──
+  /* ── LAYER 0a: Real liq grid (CoinGlass-style) จาก Worker /heatmap + GAS v4 ──
      วาดก่อนสุด — ถ้า realHeatmapData ว่าง (fapi geo-block) ข้ามได้เลย (graceful fallback) */
   if (realHeatmapData) {
     drawRealHeatmapOverlay(cx, pL, pT, pW, pH, lo, hi, p2y, visCands);
@@ -2814,7 +2789,7 @@ function draw() {
 
 /* ═══════════════════════════════════════════════════════
    NEW v18: drawRealHeatmapOverlay — LAYER 0a
-   วาด real liquidation grid จาก Worker /heatmap → GAS v3 → Binance allForceOrders
+   วาด real liquidation grid จาก Worker /heatmap → GAS v4 → Binance allForceOrders
    เป็น 2D overlay (time × price × USD volume) แบบ CoinGlass จริง
    palette: orange → yellow-white (ต่างจาก model bands เพื่อแยกชัดบนหน้าจอ)
    ถ้า realHeatmapData = null → return ทันที (graceful)
@@ -3957,7 +3932,7 @@ let priceTimer = null;
 let hmTimer    = null; // NEW v18: real heatmap refresh timer
 
 /* NEW v18: fetchRealHeatmap
-   ดึง real liq grid จาก Worker /heatmap → GAS v3 → Binance allForceOrders
+   ดึง real liq grid จาก Worker /heatmap → GAS v4 → Binance allForceOrders
    ถ้า GAS ส่ง empty (fapi geo-block) → realHeatmapData = null → model bands แสดงปกติ */
 let _hmAbortCtrl = null;
 async function fetchRealHeatmap() {
@@ -4050,9 +4025,6 @@ init();
   const backdrop      = document.getElementById('sheetBackdrop');
   const ctrlSheet     = document.getElementById('ctrlSheet');
   const sidebarSheet  = document.getElementById('sidebarSheet');
-  const mCtrlBtn      = document.getElementById('mobileCtrlBtn');
-  const mSidebarBtn   = document.getElementById('mobileSidebarBtn');
-
   // ── Mobile controls — sync กับ desktop controls ──
   const syncPairs = [
     ['mChkLong',     'chkLong'],
@@ -4135,7 +4107,7 @@ init();
     if (!sidebar) return;
 
     // Clone ทุก section ของ sidebar
-    const sections = ['legend', 'sizeGuide', 'sourcePanel', 'feedTitle', 'feed'];
+    const sections = ['legend', 'sourcePanel', 'feedTitle', 'feed'];
     sections.forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
