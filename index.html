@@ -425,109 +425,294 @@ canvas { display: block; touch-action: none; }
   flex: 1;
 }
 
+/* ══════════════════════════════════════════════════════════════
+   MOBILE — Bottom Nav + Pill Header + Glassmorphism Sheets
+   ออกแบบใหม่: compact header | fixed bottom nav | rich sheets
+══════════════════════════════════════════════════════════════ */
+
+/* ── Mobile Bottom Nav Bar (hidden on desktop) ── */
+#mobileBottomNav {
+  display: none;
+}
+
+/* ── Mobile Topbar Price Pill ── */
+#mobilePricePill {
+  display: none;
+}
+
 @media (max-width: 768px) {
 
-  /* ── Root: ป้องกัน body scroll เมื่อ sheet เปิด ── */
+  /* ── Root ── */
+  body {
+    padding-bottom: 56px; /* space for fixed bottom nav */
+  }
   body.sheet-open { overflow: hidden; }
 
-  /* ── topbar: compact ── */
+  /* ══ TOPBAR: เหลือแค่ logo + coin/iv selector + status dots ══ */
   #topbar {
-    padding: 6px 10px;
-    gap: 6px;
+    padding: 0 10px;
+    height: 48px;
+    gap: 8px;
     flex-wrap: nowrap;
-    overflow-x: auto;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(10,16,24,0.92);
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
+
+  /* Logo mark - replace h1 text with icon feel */
   #topbar h1 {
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
     white-space: nowrap;
     flex-shrink: 0;
+    color: var(--accent);
+    text-transform: uppercase;
   }
-  #topbar h1 em { display: none; } /* ซ่อน subtitle บนมือถือ */
+  #topbar h1 em { display: none; }
 
+  /* Coin + Interval selects — pill style */
   #coinSel, #ivSel {
     font-size: 13px;
-    padding: 3px 6px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: rgba(255,255,255,.04);
+    color: var(--text);
     flex-shrink: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    /* subtle arrow */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233d5570'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 22px;
+  }
+  #coinSel:active, #ivSel:active {
+    border-color: var(--accent);
+    background-color: rgba(64,196,255,.08);
   }
 
-  /* ซ่อน wsTag label text เหลือแค่ dot */
+  /* Status dots — compact cluster */
+  #wsTag {
+    gap: 4px;
+    align-items: center;
+    flex-shrink: 0;
+  }
   #wsLbl, #liqLbl { display: none; }
-  #wsTag, #liqTag { gap: 0; }
+  #liqTag { gap: 4px; flex-shrink: 0; }
 
-  /* ซ่อน fallbackTag ยาว → แสดงแค่ ⚠ */
+  /* History tab button — hidden in topbar, moved to bottom nav */
+  #historyTabBtn { display: none; }
+
+  /* Mobile ⚙ ☰ buttons — hidden, replaced by bottom nav */
+  #mobileCtrlBtn, #mobileSidebarBtn { display: none !important; }
+
+  /* spacer not needed */
+  .spc { display: none; }
+
+  /* fallback warning — compact chip */
   #fallbackTag {
-    font-size: 10px;
-    padding: 2px 5px;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 10px;
     white-space: nowrap;
+    max-width: 28px;
     overflow: hidden;
     text-overflow: clip;
-    max-width: 24px;
-  }
-
-  /* ── Mobile action buttons ── */
-  #mobileCtrlBtn, #mobileSidebarBtn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     flex-shrink: 0;
-    width: 32px;
-    height: 28px;
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    background: var(--panel);
-    color: var(--text);
-    font-size: 14px;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-  }
-  #mobileCtrlBtn:active, #mobileSidebarBtn:active {
-    background: var(--border);
   }
 
-  /* ── statsbar: horizontal scroll, compact ── */
+  /* srcDots — hidden on topbar */
+  #srcDots { display: none; }
+
+  /* ══ STATS BAR: horizontal pill scroll ══ */
   #statsbar {
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    gap: 0;
+    padding: 0 4px;
+    background: rgba(10,16,24,0.88);
+    border-bottom: 1px solid var(--border);
   }
   #statsbar::-webkit-scrollbar { display: none; }
 
   .stat {
-    min-width: 72px;
-    padding: 4px 8px;
+    min-width: 76px;
+    padding: 5px 10px;
     flex-shrink: 0;
+    border-right: 1px solid rgba(255,255,255,.04);
   }
-  .stat .lbl { font-size: 9px; }
-  .stat .val { font-size: 13px; }
+  .stat .lbl { font-size: 9px; letter-spacing: .3px; }
+  .stat .val  { font-size: 13px; font-weight: 700; }
   .stat .stat-sub { font-size: 9px; }
+  .stat-div { display: none; }
 
-  /* ── layout: ซ่อน sidebar ── */
-  #sidebar {
-    display: none;
+  /* Accent primary stats */
+  .stat.primary {
+    background: rgba(64,196,255,.03);
+    border-bottom: 2px solid var(--accent);
+    min-width: 88px;
   }
+  .stat.primary .val { font-size: 14px; }
 
-  /* ── overlayCtrl: ซ่อน — ใช้ bottom sheet แทน ── */
-  #overlayCtrl {
-    display: none !important;
-  }
+  /* ── Layout: full width, no sidebar ── */
+  #sidebar { display: none; }
+  #overlayCtrl { display: none !important; }
+  #layout { padding-bottom: 0; }
 
-  /* ── caption: เล็กลง ── */
+  /* Canvas caption */
   #caption {
-    font-size: 9px;
-    bottom: 52px;
+    font-size: 8px;
+    bottom: 4px;
     left: 6px;
-    right: 80px;
+    right: 6px;
+    opacity: .55;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  /* ── Sheet CSS ย้ายเป็น global ด้านบน ── */
+  /* ══ BOTTOM NAV BAR ══ */
+  #mobileBottomNav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: rgba(8,13,20,0.96);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 300;
+    align-items: stretch;
+    padding: 0 4px;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .mob-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 4px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--dim);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    position: relative;
+    transition: color .15s;
+    border-radius: 10px;
+  }
+  .mob-nav-item:active { background: rgba(255,255,255,.04); }
+  .mob-nav-item.active {
+    color: var(--accent);
+  }
+  .mob-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+  }
+  .mob-nav-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+  .mob-nav-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+  }
+  /* Live status dot on Chart nav button */
+  .mob-nav-item .mob-live-dot {
+    position: absolute;
+    top: 8px;
+    right: calc(50% - 14px);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 5px var(--green);
+  }
+  .mob-nav-item .mob-live-dot.off {
+    background: var(--red);
+    box-shadow: 0 0 5px var(--red);
+  }
 
-  /* ── Controls sheet: จัดเป็น grid ── */
+  /* ══ BOTTOM SHEETS — redesigned glassmorphism ══ */
+  .bottom-sheet {
+    background: rgba(10,16,24,0.97);
+    border-top: 1px solid rgba(255,255,255,.07);
+    border-radius: 18px 18px 0 0;
+    max-height: 85dvh;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 -8px 40px rgba(0,0,0,.6);
+  }
+
+  .sheet-handle {
+    width: 32px;
+    height: 3px;
+    background: rgba(255,255,255,.12);
+    border-radius: 2px;
+    margin: 12px auto 4px;
+  }
+
+  .sheet-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-align: center;
+    padding: 0 20px 10px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+
+  .sheet-body {
+    padding: 16px 16px 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── Controls Sheet ── */
   #ctrlSheet .sheet-body {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 0;
+    padding: 8px 16px 20px;
+  }
+
+  /* Section header inside sheet */
+  .ctrl-section-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--dim);
+    padding: 14px 0 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
   }
 
   .ctrl-mobile-row {
@@ -535,62 +720,194 @@ canvas { display: block; touch-action: none; }
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid rgba(255,255,255,.03);
   }
+  .ctrl-mobile-row:last-of-type { border-bottom: none; }
   .ctrl-mobile-row label {
     font-size: 13px;
+    font-weight: 500;
     color: var(--text);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     flex: 1;
     -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
   }
-  .ctrl-mobile-row input[type=checkbox] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--accent);
+  /* Color swatch inline in label */
+  .ctrl-swatch {
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
     flex-shrink: 0;
+  }
+
+  /* iOS-style toggle switch */
+  .mob-toggle {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .mob-toggle input { display: none; }
+  .mob-toggle-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 13px;
+    background: var(--border2);
+    transition: background .2s;
+    cursor: pointer;
+  }
+  .mob-toggle input:checked + .mob-toggle-track {
+    background: var(--accent);
+    box-shadow: 0 0 8px rgba(64,196,255,.35);
+  }
+  .mob-toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,.4);
+    transition: transform .2s cubic-bezier(.32,.72,0,1);
+    pointer-events: none;
+  }
+  .mob-toggle input:checked ~ .mob-toggle-thumb,
+  .mob-toggle input:checked + .mob-toggle-track + .mob-toggle-thumb {
+    transform: translateX(18px);
+  }
+  /* Fix: thumb needs to be sibling pattern */
+  .mob-toggle-track::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,.4);
+    transition: transform .2s cubic-bezier(.32,.72,0,1);
+  }
+  .mob-toggle input:checked + .mob-toggle-track::after {
+    transform: translateX(18px);
   }
 
   .ctrl-mobile-slider {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,.03);
   }
+  .ctrl-mobile-slider:last-child { border-bottom: none; }
   .ctrl-mobile-slider .slider-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+  }
+  .ctrl-mobile-slider .slider-header span:first-child {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .ctrl-mobile-slider .slider-header span:last-child {
     font-size: 12px;
-    color: var(--dim);
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 36px;
+    text-align: right;
   }
   .ctrl-mobile-slider input[type=range] {
     width: 100%;
     accent-color: var(--accent);
+    height: 4px;
+    border-radius: 2px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--border2);
+    cursor: pointer;
+  }
+  .ctrl-mobile-slider input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
     height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px rgba(64,196,255,.4);
+    cursor: pointer;
   }
 
-  /* ── Sidebar sheet ── */
+  /* ── Sidebar Sheet ── */
   #sidebarSheet .sheet-body {
-    padding: 12px 14px 24px;
+    padding: 10px 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
   }
 
-  /* reuse sidebar styles ภายใน sheet */
-  #sidebarSheet #legend,
-  #sidebarSheet #sizeGuide,
-  #sidebarSheet #sourcePanel,
-  #sidebarSheet #feedTitle,
-  #sidebarSheet #feed {
-    display: block;
+  /* Source grid in sheet */
+  #sidebarSheet [id^="m_sourcePanel"] {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
   }
+  .src-grid { gap: 4px 10px; }
+  .src-exch { font-size: 10px; color: var(--dim); }
+  .src-status { font-size: 10px; padding: 2px 7px; border-radius: 4px; }
 
-  #sidebarSheet #feed {
-    max-height: 220px;
+  /* Feed in sheet */
+  #sidebarSheet [id^="m_feed"] {
+    max-height: 240px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    background: rgba(0,0,0,.2);
+    margin-top: 6px;
+  }
+  #sidebarSheet [id^="m_feedTitle"] {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--dim);
+    padding: 12px 0 6px;
   }
 
-  /* ── srcDots: ซ่อนบน topbar มือถือ (ดูใน sidebar sheet แทน) ── */
-  #srcDots { display: none; }
+  /* ── History panel on mobile ── */
+  #historyPanel {
+    padding-bottom: 56px;
+  }
+  .hist-coin-bar {
+    padding: 8px 12px;
+    gap: 6px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .hist-coin-bar::-webkit-scrollbar { display: none; }
+  .hist-coin-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .hist-summary-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .hist-container { padding: 10px 12px 36px; }
+  .hist-stat-card { padding: 10px 12px; }
+  .hist-stat-value { font-size: 15px; }
+  .hist-table-wrap thead th,
+  .hist-table-wrap tbody td { padding: 7px 6px; font-size: 10px; }
+  .hist-bar-bg { width: 22px; }
+  .hist-month-tabs { gap: 6px; }
+  .hist-tab-btn { padding: 5px 12px; font-size: 11px; }
+  #histSparkChart { height: 70px; }
+
+  /* ── History tab button in bottom nav (not topbar) ── */
+  /* handled by #mobileBottomNav */
 
 }
 
@@ -929,10 +1246,31 @@ canvas { display: block; touch-action: none; }
   <span id="fallbackTag" style="display:none;font-size:11px;padding:2px 8px;border-radius:4px;background:rgba(255,69,58,.14);color:#ff6b5e;white-space:nowrap">
     ⚠ Worker ล่ม — ใช้ Hyperliquid สำรองเท่านั้น (ไม่ใช่ P_agg จาก 5 เอ็กซ์เชนจ์)
   </span>
-  <!-- Mobile-only buttons -->
-  <button id="mobileCtrlBtn" aria-label="ตั้งค่าการแสดงผล" title="Controls">⚙</button>
-  <button id="mobileSidebarBtn" aria-label="ข้อมูลและสถานะ" title="Info">☰</button>
+  <!-- Mobile-only buttons (legacy, replaced by bottom nav on mobile) -->
+  <button id="mobileCtrlBtn" aria-label="ตั้งค่าการแสดงผล" title="Controls" style="display:none">⚙</button>
+  <button id="mobileSidebarBtn" aria-label="ข้อมูลและสถานะ" title="Info" style="display:none">☰</button>
 </div>
+
+<!-- MOBILE BOTTOM NAV (hidden on desktop via CSS) -->
+<nav id="mobileBottomNav" aria-label="เมนูหลัก">
+  <button class="mob-nav-item active" id="mobNavChart" onclick="mobileNav.show('chart')" aria-label="กราฟ">
+    <span class="mob-live-dot" id="mobLiveDot"></span>
+    <span class="mob-nav-icon">📊</span>
+    <span class="mob-nav-label">กราฟ</span>
+  </button>
+  <button class="mob-nav-item" id="mobNavHistory" onclick="mobileNav.show('history')" aria-label="ประวัติ">
+    <span class="mob-nav-icon">📈</span>
+    <span class="mob-nav-label">History</span>
+  </button>
+  <button class="mob-nav-item" id="mobNavCtrl" onclick="mobileNav.show('ctrl')" aria-label="ตั้งค่า">
+    <span class="mob-nav-icon">⚙️</span>
+    <span class="mob-nav-label">ตั้งค่า</span>
+  </button>
+  <button class="mob-nav-item" id="mobNavInfo" onclick="mobileNav.show('info')" aria-label="ข้อมูล">
+    <span class="mob-nav-icon">☰</span>
+    <span class="mob-nav-label">ข้อมูล</span>
+  </button>
+</nav>
 
 <!-- OVERLAY CONTROLS -->
 <div id="overlayCtrl">
@@ -1036,17 +1374,46 @@ canvas { display: block; touch-action: none; }
 <!-- Sheet 1: Controls (overlayCtrl สำหรับมือถือ) -->
 <div class="bottom-sheet" id="ctrlSheet">
   <div class="sheet-handle"></div>
-  <div class="sheet-title">ตั้งค่าการแสดงผล</div>
+  <div class="sheet-title">การแสดงผล</div>
   <div class="sheet-body">
+
+    <div class="ctrl-section-label">Liq Zones</div>
+
     <div class="ctrl-mobile-row">
-      <label><input type="checkbox" id="mChkLong" checked> Long Liq zones</label>
+      <label for="mChkLong">
+        <span class="ctrl-swatch" style="background:linear-gradient(90deg,#c04010,#f9a030,#ffd040);box-shadow:0 0 5px rgba(255,150,30,.5)"></span>
+        Long Liq
+      </label>
+      <label class="mob-toggle">
+        <input type="checkbox" id="mChkLong" checked>
+        <span class="mob-toggle-track"></span>
+      </label>
     </div>
+
     <div class="ctrl-mobile-row">
-      <label><input type="checkbox" id="mChkShort" checked> Short Liq zones</label>
+      <label for="mChkShort">
+        <span class="ctrl-swatch" style="background:linear-gradient(90deg,#006060,#00b8a0,#22ddc0);box-shadow:0 0 5px rgba(0,200,180,.5)"></span>
+        Short Liq
+      </label>
+      <label class="mob-toggle">
+        <input type="checkbox" id="mChkShort" checked>
+        <span class="mob-toggle-track"></span>
+      </label>
     </div>
+
     <div class="ctrl-mobile-row">
-      <label><input type="checkbox" id="mChkCluster" checked> Cluster highlight</label>
+      <label for="mChkCluster">
+        <span class="ctrl-swatch" style="background:#ffd700;box-shadow:0 0 6px rgba(255,215,0,.6)"></span>
+        ⚡ Cluster
+      </label>
+      <label class="mob-toggle">
+        <input type="checkbox" id="mChkCluster" checked>
+        <span class="mob-toggle-track"></span>
+      </label>
     </div>
+
+    <div class="ctrl-section-label">ปรับค่า</div>
+
     <div class="ctrl-mobile-slider">
       <div class="slider-header">
         <span>เส้นขั้นต่ำ</span>
@@ -1054,6 +1421,7 @@ canvas { display: block; touch-action: none; }
       </div>
       <input type="range" id="mThreshSlider" min="0" max="60" value="15" step="5">
     </div>
+
     <div class="ctrl-mobile-slider">
       <div class="slider-header">
         <span>Opacity</span>
@@ -1061,6 +1429,7 @@ canvas { display: block; touch-action: none; }
       </div>
       <input type="range" id="mOpacSlider" min="20" max="100" value="65" step="5">
     </div>
+
   </div>
 </div>
 
@@ -3671,9 +4040,7 @@ init();
   addSwipeClose(ctrlSheet);
   addSwipeClose(sidebarSheet);
 
-  // ── Event listeners ──
-  mCtrlBtn?.addEventListener('click', () => toggleSheet(ctrlSheet));
-  mSidebarBtn?.addEventListener('click', () => toggleSheet(sidebarSheet));
+  // ── Event listeners (backdrop only — buttons replaced by bottom nav) ──
   backdrop?.addEventListener('click', () => closeSheet(activeSheet));
 
   // ── Resize: ปิด sheet เมื่อกลับสู่ desktop ──
@@ -3686,6 +4053,112 @@ init();
   // (ถ้า updateSourceUI เป็น global function จะ mirror ผลลัพธ์ไปยัง clone อัตโนมัติ
   //  เพราะ populateSidebarSheet() re-clone ทุกครั้งที่เปิด sheet)
 
+  // ── Export openSheet/closeSheet for mobileNav ──
+  window._sheetCtrl = { openSheet, closeSheet, toggleSheet, ctrlSheet, sidebarSheet };
+
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   MOBILE BOTTOM NAV CONTROLLER
+══════════════════════════════════════════════════════════════ */
+window.mobileNav = (function () {
+  const isMobile = () => window.innerWidth <= 768;
+
+  const tabs = {
+    chart:   document.getElementById('mobNavChart'),
+    history: document.getElementById('mobNavHistory'),
+    ctrl:    document.getElementById('mobNavCtrl'),
+    info:    document.getElementById('mobNavInfo'),
+  };
+
+  let current = 'chart';
+
+  function setActive(tab) {
+    Object.values(tabs).forEach(el => el && el.classList.remove('active'));
+    if (tabs[tab]) tabs[tab].classList.add('active');
+    current = tab;
+  }
+
+  function show(tab) {
+    if (!isMobile()) return;
+
+    const sc = window._sheetCtrl;
+    if (!sc) return;
+
+    if (tab === 'chart') {
+      // close any sheet, close history panel
+      sc.closeSheet(sc.ctrlSheet);
+      sc.closeSheet(sc.sidebarSheet);
+      const panel  = document.getElementById('historyPanel');
+      const layout = document.getElementById('layout');
+      const histBtn = document.getElementById('historyTabBtn');
+      if (panel) panel.classList.remove('active');
+      if (layout) layout.style.display = '';
+      if (histBtn) histBtn.classList.remove('active-tab');
+      setActive('chart');
+
+    } else if (tab === 'history') {
+      sc.closeSheet(sc.ctrlSheet);
+      sc.closeSheet(sc.sidebarSheet);
+      // delegate to HistoryModule toggle if not open
+      const panel = document.getElementById('historyPanel');
+      if (!panel.classList.contains('active')) {
+        if (window.HistoryModule) window.HistoryModule.togglePanel();
+      }
+      setActive('history');
+
+    } else if (tab === 'ctrl') {
+      // ensure chart visible behind sheet
+      const panel  = document.getElementById('historyPanel');
+      const layout = document.getElementById('layout');
+      if (panel && panel.classList.contains('active')) {
+        panel.classList.remove('active');
+        if (layout) layout.style.display = '';
+        if (window.HistoryModule) {
+          const btn = document.getElementById('historyTabBtn');
+          if (btn) btn.classList.remove('active-tab');
+        }
+        setActive('chart'); // visual stays chart
+      }
+      sc.toggleSheet(sc.ctrlSheet);
+      // don't change active tab — user is on chart still
+
+    } else if (tab === 'info') {
+      // same as ctrl, open sidebar sheet without changing main view
+      sc.toggleSheet(sc.sidebarSheet);
+    }
+  }
+
+  // ── Sync live dot with wsDot ──
+  function syncLiveDot() {
+    const wsDot  = document.getElementById('wsDot');
+    const mobDot = document.getElementById('mobLiveDot');
+    if (!wsDot || !mobDot) return;
+    const live = wsDot.classList.contains('live');
+    mobDot.classList.toggle('off', !live);
+  }
+  setInterval(syncLiveDot, 2000);
+
+  // ── When history panel closes from within (historyTabBtn toggle on desktop) ──
+  //    sync bottom nav back to chart
+  const _origToggle = window.HistoryModule && window.HistoryModule.togglePanel;
+  // patch after HistoryModule loads
+  setTimeout(() => {
+    const hm = window.HistoryModule;
+    if (!hm) return;
+    const orig = hm.togglePanel.bind(hm);
+    hm.togglePanel = function () {
+      orig();
+      const panel = document.getElementById('historyPanel');
+      if (panel && panel.classList.contains('active')) {
+        setActive('history');
+      } else {
+        setActive('chart');
+      }
+    };
+  }, 200);
+
+  return { show, setActive };
 })();
 
 /* ════════════════════════════════════════════════════════════════
