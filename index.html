@@ -2692,17 +2692,22 @@ function draw() {
     drawLiqHeatmapActive(cx, pL, pR, pT, pW, pH, mw, lo, hi, p2y);
   }
 
-  /* ── LAYER 3: Big trade dots (จากทุกเอ็กซ์เชนจ์ที่ต่อได้) ── */
+  /* ── LAYER 3: Big trade dots (จากทุกเอ็กซ์เชนจ์ที่ต่อได้) ──
+     ข้ามแท่งสุดท้าย (forming candle) เพื่อป้องกัน dots กองซ้อนที่ราคาปัจจุบัน
+     จุดเหล่านี้จะแสดงเมื่อแท่งปิดแล้วในรอบถัดไป */
+  const lastCandAbsIdx = candles.length - 1;
   for (const t of activeTrades) {
     if (t.usd < CFG.minUsd) continue;
-    const tIdx = findCandleIndex(t.ts) - startIdx;
+    const absIdx = findCandleIndex(t.ts);
+    if (absIdx < 0 || absIdx >= lastCandAbsIdx) continue; // ข้ามแท่งปัจจุบัน
+    const tIdx = absIdx - startIdx;
     if (tIdx < 0 || tIdx >= n) continue;
     const x = pL + tIdx * cw + cw / 2;
     const y = p2y(t.px);
-    const r = Math.min(6, 2 + t.usd / 5e5);
+    const r = Math.min(4.5, 1.5 + t.usd / 8e5); // radius เล็กลงเพื่อไม่บดบัง candle
     cx.beginPath();
     cx.arc(x, y, r, 0, Math.PI * 2);
-    cx.fillStyle = t.side === 'B' ? 'rgba(0,230,118,.85)' : 'rgba(255,23,68,.85)';
+    cx.fillStyle = t.side === 'B' ? 'rgba(0,230,118,.80)' : 'rgba(255,23,68,.80)';
     cx.fill();
   }
 
@@ -2732,31 +2737,82 @@ function draw() {
      ถ้าวาดทีหลัง (เหมือนโค้ดเดิม) จะไปทับกล่องราคา/label จนมองไม่เห็น */
   if (bands.length) drawLiqHistogram(cx, mw, pR, pT, pH, lo, hi, p2y);
 
-  /* ── LAYER 5: Mark price line — วาดทับ histogram panel ── */
-  if (S.markPx > 0) {
+  /* ── LAYER 5a: Current price line (last candle close) — TradingView style ──
+     เส้นประแนวนอนจากแท่งปัจจุบันไปชนขอบขวา + กล่องราคา up/dn
+     ใช้ c.c ของ visCands ล่าสุด (ราคา live จาก WS candle update) */
+  {
+    const lastC   = visCands[visCands.length - 1];
+    const curPx   = lastC ? lastC.c : 0;
+    const prevC   = visCands.length >= 2 ? visCands[visCands.length - 2] : null;
+    const isUp    = prevC ? curPx >= prevC.c : curPx >= (lastC ? lastC.o : 0);
+    if (curPx > 0) {
+      const cy = p2y(curPx);
+      if (cy >= pT && cy <= pT + pH) {
+        // เส้นประ — สีตาม direction
+        const lineColor = isUp ? 'rgba(0,230,118,.7)' : 'rgba(255,23,68,.7)';
+        cx.strokeStyle = lineColor;
+        cx.lineWidth = 1;
+        cx.setLineDash([4, 4]);
+        cx.beginPath();
+        cx.moveTo(pL + (n - 1) * cw + cw, cy); // เริ่มจากขอบขวาของแท่งล่าสุด
+        cx.lineTo(mw - pR, cy);
+        cx.stroke();
+        cx.setLineDash([]);
+
+        // กล่องราคา — ขนาด compact บน mobile
+        const boxH       = isMob ? 15 : 17;
+        const boxFont    = isMob ? 10 : 11;
+        const boxBg      = isUp ? 'rgba(0,180,90,.95)' : 'rgba(210,20,50,.95)';
+        const boxStroke  = isUp ? 'rgba(0,230,118,.6)' : 'rgba(255,23,68,.6)';
+        const boxText    = '#ffffff';
+        const boxX       = mw - pR + 1;
+        const boxY       = cy - boxH / 2;
+        const boxW       = pR - 2;
+
+        cx.fillStyle = boxBg;
+        cx.beginPath();
+        cx.roundRect
+          ? cx.roundRect(boxX, boxY, boxW, boxH, 3)
+          : cx.rect(boxX, boxY, boxW, boxH);
+        cx.fill();
+        cx.strokeStyle = boxStroke;
+        cx.lineWidth = 1;
+        cx.stroke();
+        cx.fillStyle = boxText;
+        cx.font = `bold ${boxFont}px "Segoe UI",system-ui,sans-serif`;
+        cx.textAlign = 'left';
+        cx.fillText('$' + fmt(curPx), boxX + 4, cy + boxFont * 0.38);
+      }
+    }
+  }
+
+  /* ── LAYER 5b: Mark price line (Hyperliquid mark) — เส้นอ้างอิงเพิ่มเติม ──
+     แยกสีฟ้าชัดเจน เพื่อไม่สับสนกับ current price line ด้านบน */
+  if (S.markPx > 0 && Math.abs(S.markPx - (visCands[visCands.length-1]?.c || 0)) > 0.5) {
+    // วาดเฉพาะเมื่อ mark price ต่างจาก last close มากพอ (ไม่ซ้อนทับ)
     const y = p2y(S.markPx);
     if (y >= pT && y <= pT + pH) {
-      cx.strokeStyle = 'rgba(90,180,255,.85)';
+      cx.strokeStyle = 'rgba(90,180,255,.55)';
       cx.lineWidth = 1;
-      cx.setLineDash([3, 3]);
+      cx.setLineDash([2, 5]);
       cx.beginPath(); cx.moveTo(pL, y); cx.lineTo(mw - pR, y); cx.stroke();
       cx.setLineDash([]);
-      // Mark price box — compact on mobile
-      const boxH = isMob ? 14 : 16;
-      const boxFontSize = isMob ? 10 : 11;
-      cx.fillStyle = 'rgba(20,50,110,.96)';
+      // Mark price box — เล็กกว่า current price box
+      const boxH       = isMob ? 13 : 14;
+      const boxFont    = isMob ? 9 : 10;
+      cx.fillStyle = 'rgba(15,40,90,.92)';
       cx.beginPath();
-      cx.roundRect ? cx.roundRect(mw - pR + 1, y - boxH/2, pR - 2, boxH, 3)
-                   : cx.rect(mw - pR + 1, y - boxH/2, pR - 2, boxH);
+      cx.roundRect
+        ? cx.roundRect(mw - pR + 1, y - boxH/2, pR - 2, boxH, 3)
+        : cx.rect(mw - pR + 1, y - boxH/2, pR - 2, boxH);
       cx.fill();
-      cx.strokeStyle = 'rgba(90,180,255,.4)';
+      cx.strokeStyle = 'rgba(90,180,255,.35)';
       cx.lineWidth = 1;
-      cx.setLineDash([]);
       cx.stroke();
       cx.fillStyle = '#82d4ff';
-      cx.font = `bold ${boxFontSize}px "Segoe UI",system-ui,sans-serif`;
+      cx.font = `${boxFont}px "Segoe UI",system-ui,sans-serif`;
       cx.textAlign = 'left';
-      cx.fillText('$' + fmt(S.markPx), mw - pR + 4, y + boxFontSize * 0.35);
+      cx.fillText('$' + fmt(S.markPx), mw - pR + 4, y + boxFont * 0.38);
     }
   }
 
